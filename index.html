@@ -4,155 +4,127 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DeFi Ops Efficiency Index — 2026</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #080b0f;
-    --surface: #0e1318;
-    --surface2: #141b24;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.13);
-    --text: #e8edf2;
-    --muted: #6b7a8d;
-    --faint: #2a3340;
-    --lean: #00e5a0;
-    --lean-bg: rgba(0,229,160,0.08);
-    --burn: #ff6b2b;
-    --burn-bg: rgba(255,107,43,0.08);
-    --beast: #4d8bff;
-    --beast-bg: rgba(77,139,255,0.08);
-    --balanced: #c084fc;
-    --balanced-bg: rgba(192,132,252,0.08);
-    --danger: #ff4560;
-    --gold: #fbbf24;
-    --mono: 'Space Mono', monospace;
-    --sans: 'Syne', sans-serif;
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#080b0f;--surface:#0e1318;--surface2:#141b24;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+    --text:#e8edf2;--muted:#6b7a8d;--faint:#2a3340;
+    --elite:#FFD700;--elite-bg:rgba(255,215,0,0.08);
+    --lean:#00e5a0;--lean-bg:rgba(0,229,160,0.08);
+    --burn:#ff6b2b;--burn-bg:rgba(255,107,43,0.08);
+    --beast:#4d8bff;--beast-bg:rgba(77,139,255,0.08);
+    --balanced:#c084fc;--balanced-bg:rgba(192,132,252,0.08);
+    --danger:#ff4560;--gold:#fbbf24;
+    --mono:'Space Mono',monospace;--sans:'Syne',sans-serif;
   }
-  html { scroll-behavior: smooth; }
-  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; min-height: 100vh; overflow-x: hidden; }
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:1000}
 
-  /* scanline texture */
-  body::before { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px); pointer-events:none; z-index:1000; }
+  header{padding:28px 32px 0;border-bottom:1px solid var(--border)}
+  .header-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;padding-bottom:20px}
+  .eyebrow{font-family:var(--mono);font-size:10px;color:var(--elite);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px}
+  .title{font-size:28px;font-weight:800;line-height:1.1;letter-spacing:-0.02em}
+  .title span{color:var(--lean)}
+  .sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:6px;line-height:1.6}
+  .hstats{display:flex;gap:24px;flex-wrap:wrap}
+  .hstat{text-align:right}
+  .hstat-val{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--lean)}
+  .hstat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px}
 
-  /* ── HEADER ── */
-  header { padding: 28px 32px 0; border-bottom: 1px solid var(--border); }
-  .header-top { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:16px; padding-bottom:20px; }
-  .header-eyebrow { font-family:var(--mono); font-size:10px; color:var(--lean); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:8px; }
-  .header-title { font-size:26px; font-weight:800; line-height:1.1; letter-spacing:-0.02em; }
-  .header-title span { color:var(--lean); }
-  .header-sub { font-family:var(--mono); font-size:11px; color:var(--muted); margin-top:6px; line-height:1.6; }
-  .header-stats { display:flex; gap:24px; flex-wrap:wrap; }
-  .hstat { text-align:right; }
-  .hstat-val { font-family:var(--mono); font-size:20px; font-weight:700; color:var(--lean); }
-  .hstat-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-top:2px; }
+  /* ELITE BANNER */
+  .elite-banner{background:linear-gradient(90deg,rgba(255,215,0,0.06) 0%,rgba(255,215,0,0.02) 100%);border-bottom:1px solid rgba(255,215,0,0.2);padding:10px 32px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .elite-tag{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--bg);background:var(--elite);padding:3px 8px;border-radius:2px;letter-spacing:0.05em}
+  .elite-text{font-family:var(--mono);font-size:11px;color:var(--elite)}
+  .elite-stat{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .elite-stat strong{color:var(--elite)}
 
-  /* ── FILTERS ── */
-  .filters-bar { display:flex; gap:12px; padding:14px 32px; border-bottom:1px solid var(--border); flex-wrap:wrap; align-items:center; }
-  .filter-group { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
-  .filter-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; margin-right:4px; font-family:var(--mono); }
-  .chip { padding:4px 10px; border-radius:3px; border:1px solid var(--border2); font-size:11px; cursor:pointer; transition:all 0.15s; background:transparent; color:var(--muted); font-family:var(--mono); }
-  .chip.active { color:var(--bg); font-weight:700; }
-  .chip[data-cluster="0"].active { background:var(--lean); border-color:var(--lean); }
-  .chip[data-cluster="1"].active { background:var(--burn); border-color:var(--burn); }
-  .chip[data-cluster="2"].active { background:var(--balanced); border-color:var(--balanced); }
-  .chip[data-cluster="3"].active { background:var(--beast); border-color:var(--beast); }
-  .chip[data-cluster="all"].active { background:var(--text); border-color:var(--text); }
-  .search-box { margin-left:auto; display:flex; align-items:center; gap:8px; }
-  .search-box input { background:var(--surface2); border:1px solid var(--border2); border-radius:3px; padding:5px 10px; color:var(--text); font-family:var(--mono); font-size:11px; outline:none; width:180px; }
-  .search-box input::placeholder { color:var(--muted); }
+  .filters-bar{display:flex;gap:12px;padding:14px 32px;border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center}
+  .filter-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-right:4px;font-family:var(--mono)}
+  .chip{padding:4px 10px;border-radius:3px;border:1px solid var(--border2);font-size:11px;cursor:pointer;transition:all 0.15s;background:transparent;color:var(--muted);font-family:var(--mono)}
+  .chip[data-cluster="all"].active{background:var(--text);border-color:var(--text);color:var(--bg)}
+  .chip[data-cluster="4"].active{background:var(--elite);border-color:var(--elite);color:var(--bg)}
+  .chip[data-cluster="0"].active{background:var(--lean);border-color:var(--lean);color:var(--bg)}
+  .chip[data-cluster="1"].active{background:var(--burn);border-color:var(--burn);color:var(--bg)}
+  .chip[data-cluster="2"].active{background:var(--balanced);border-color:var(--balanced);color:var(--bg)}
+  .chip[data-cluster="3"].active{background:var(--beast);border-color:var(--beast);color:var(--bg)}
+  .search-box{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .search-box input{background:var(--surface2);border:1px solid var(--border2);border-radius:3px;padding:5px 10px;color:var(--text);font-family:var(--mono);font-size:11px;outline:none;width:180px}
+  .search-box input::placeholder{color:var(--muted)}
 
-  /* ── TABS ── */
-  .tabs-nav { display:flex; gap:0; padding:0 32px; border-bottom:1px solid var(--border); }
-  .tab-btn { padding:12px 20px; font-size:12px; font-weight:700; color:var(--muted); cursor:pointer; border:none; background:none; border-bottom:2px solid transparent; transition:all 0.15s; font-family:var(--sans); letter-spacing:0.03em; text-transform:uppercase; }
-  .tab-btn.active { color:var(--lean); border-bottom-color:var(--lean); }
-  .tab-btn:hover:not(.active) { color:var(--text); }
-  .tab-content { display:none; padding:28px 32px; }
-  .tab-content.active { display:block; }
+  .tabs-nav{display:flex;padding:0 32px;border-bottom:1px solid var(--border)}
+  .tab-btn{padding:12px 20px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all 0.15s;font-family:var(--sans);letter-spacing:0.03em;text-transform:uppercase}
+  .tab-btn.active{color:var(--lean);border-bottom-color:var(--lean)}
+  .tab-btn:hover:not(.active){color:var(--text)}
+  .tab-content{display:none;padding:28px 32px}
+  .tab-content.active{display:block}
 
-  /* ── SUMMARY CARDS ── */
-  .summary-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px; margin-bottom:24px; }
-  .scard { background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:14px 16px; position:relative; overflow:hidden; }
-  .scard::before { content:''; position:absolute; top:0;left:0;right:0; height:2px; background:var(--accent,var(--lean)); }
-  .scard-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:6px; font-family:var(--mono); }
-  .scard-val { font-family:var(--mono); font-size:20px; font-weight:700; color:var(--text); }
-  .scard-sub { font-size:10px; color:var(--muted); margin-top:4px; font-family:var(--mono); }
+  .summary-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:24px}
+  .scard{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px 16px;position:relative;overflow:hidden}
+  .scard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--lean))}
+  .scard-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;font-family:var(--mono)}
+  .scard-val{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text)}
+  .scard-sub{font-size:10px;color:var(--muted);margin-top:4px;font-family:var(--mono)}
 
-  /* ── TABLE ── */
-  .table-wrap { overflow-x:auto; border-radius:4px; border:1px solid var(--border); }
-  table { width:100%; border-collapse:collapse; font-size:12px; }
-  thead th { padding:10px 14px; text-align:left; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; border-bottom:1px solid var(--border2); font-weight:700; cursor:pointer; font-family:var(--mono); white-space:nowrap; background:var(--surface); user-select:none; }
-  thead th:hover { color:var(--text); }
-  thead th.sort-asc::after { content:' ▲'; color:var(--lean); }
-  thead th.sort-desc::after { content:' ▼'; color:var(--lean); }
-  tbody tr { border-bottom:1px solid var(--border); transition:background 0.1s; }
-  tbody tr:hover { background:var(--surface2); }
-  tbody tr:last-child { border-bottom:none; }
-  td { padding:11px 14px; white-space:nowrap; font-family:var(--mono); }
-  td.protocol-name { font-family:var(--sans); font-weight:700; font-size:13px; }
-  .cluster-badge { display:inline-block; padding:2px 8px; border-radius:2px; font-size:10px; font-weight:700; font-family:var(--mono); letter-spacing:0.04em; }
-  .burn-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--danger); margin-right:5px; }
-  .pos-green { color:#00e5a0; }
-  .pos-red { color:#ff4560; }
-  .bar-cell { display:flex; align-items:center; gap:8px; }
-  .bar-bg { flex:1; height:4px; background:var(--faint); border-radius:2px; min-width:60px; }
-  .bar-fill { height:100%; border-radius:2px; }
+  .table-wrap{overflow-x:auto;border-radius:4px;border:1px solid var(--border)}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  thead th{padding:10px 14px;text-align:left;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;border-bottom:1px solid var(--border2);font-weight:700;cursor:pointer;font-family:var(--mono);white-space:nowrap;background:var(--surface);user-select:none}
+  thead th:hover{color:var(--text)}
+  thead th.sort-asc::after{content:' ▲';color:var(--lean)}
+  thead th.sort-desc::after{content:' ▼';color:var(--lean)}
+  tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s}
+  tbody tr:hover{background:var(--surface2)}
+  tbody tr.elite-row{background:rgba(255,215,0,0.03)}
+  tbody tr.elite-row:hover{background:rgba(255,215,0,0.06)}
+  tbody tr:last-child{border-bottom:none}
+  td{padding:11px 14px;white-space:nowrap;font-family:var(--mono)}
+  td.pname{font-family:var(--sans);font-weight:700;font-size:13px}
+  .cbadge{display:inline-block;padding:2px 8px;border-radius:2px;font-size:10px;font-weight:700;font-family:var(--mono);letter-spacing:0.04em}
+  .burn-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--danger);margin-right:5px}
+  .pos-green{color:#00e5a0}
+  .pos-red{color:#ff4560}
+  .bar-cell{display:flex;align-items:center;gap:8px}
+  .bar-bg{flex:1;height:4px;background:var(--faint);border-radius:2px;min-width:50px}
+  .bar-fill{height:100%;border-radius:2px}
 
-  /* ── CHART SECTION ── */
-  .chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:24px; }
-  .chart-card { background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:20px; }
-  .chart-title { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:16px; font-family:var(--mono); }
-  .chart-title span { color:var(--text); }
-  .chart-wrap { position:relative; width:100%; }
-  .chart-wrap.h300 { height:300px; }
-  .chart-wrap.h260 { height:260px; }
-  .chart-full { background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:20px; margin-bottom:20px; }
-  .chart-wrap.h360 { height:360px; }
+  .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+  .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px}
+  .chart-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;font-family:var(--mono)}
+  .chart-title span{color:var(--text)}
+  .chart-wrap{position:relative;width:100%}
+  .chart-wrap.h300{height:300px}
+  .chart-wrap.h260{height:260px}
+  .chart-wrap.h360{height:360px}
+  .chart-wrap.h440{height:440px}
+  .chart-full{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px;margin-bottom:20px}
 
-  /* ── BURN PHASE ── */
-  .burn-header { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
-  .burn-count { font-family:var(--mono); font-size:36px; font-weight:700; color:var(--burn); }
-  .burn-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; font-family:var(--mono); }
-  .burn-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:24px; }
-  .burn-card { background:var(--surface); border:1px solid rgba(255,107,43,0.2); border-radius:4px; padding:16px; border-top:2px solid var(--burn); }
-  .burn-card-name { font-weight:700; font-size:14px; margin-bottom:8px; }
-  .burn-card-row { display:flex; justify-content:space-between; font-size:11px; font-family:var(--mono); padding:3px 0; border-bottom:1px solid var(--border); }
-  .burn-card-row:last-child { border-bottom:none; }
-  .burn-card-key { color:var(--muted); }
-  .burn-card-val { color:var(--burn); }
+  .burn-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+  .burn-count{font-family:var(--mono);font-size:36px;font-weight:700;color:var(--burn)}
+  .burn-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;font-family:var(--mono)}
+  .burn-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:24px}
+  .burn-card{background:var(--surface);border:1px solid rgba(255,107,43,0.2);border-radius:4px;padding:14px;border-top:2px solid var(--burn)}
+  .burn-card-name{font-weight:700;font-size:13px;margin-bottom:8px}
+  .burn-card-row{display:flex;justify-content:space-between;font-size:11px;font-family:var(--mono);padding:3px 0;border-bottom:1px solid var(--border)}
+  .burn-card-row:last-child{border-bottom:none}
+  .burn-card-key{color:var(--muted)}
+  .burn-card-val{color:var(--burn)}
 
-  /* ── VALUATION ── */
-  .val-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
-  .val-note { font-family:var(--mono); font-size:11px; color:var(--muted); padding:12px 16px; background:var(--surface2); border-left:2px solid var(--gold); margin-bottom:20px; line-height:1.7; }
-  .val-note strong { color:var(--gold); }
+  .val-note{font-family:var(--mono);font-size:11px;color:var(--muted);padding:12px 16px;background:var(--surface2);border-left:2px solid var(--gold);margin-bottom:20px;line-height:1.7}
+  .val-note strong{color:var(--gold)}
 
-  /* ── FRONTIER CHART ── */
-  #frontierWrap { position:relative; height:440px; }
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);font-family:var(--mono)}
+  .legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
 
-  /* ── LEGEND ── */
-  .legend { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px; }
-  .legend-item { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--muted); font-family:var(--mono); }
-  .legend-dot { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
+  ::-webkit-scrollbar{width:5px;height:5px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--faint);border-radius:2px}
 
-  /* ── RESPONSIVE ── */
-  @media(max-width:900px) {
-    .summary-grid { grid-template-columns:repeat(3,1fr); }
-    .chart-grid { grid-template-columns:1fr; }
-    .burn-grid { grid-template-columns:repeat(2,1fr); }
-    .val-grid { grid-template-columns:1fr; }
-    header, .filters-bar, .tabs-nav, .tab-content { padding-left:16px; padding-right:16px; }
-  }
-  @media(max-width:600px) {
-    .summary-grid { grid-template-columns:repeat(2,1fr); }
-    .burn-grid { grid-template-columns:1fr; }
-    .header-stats { display:none; }
-  }
-
-  /* scrollbar */
-  ::-webkit-scrollbar { width:5px; height:5px; }
-  ::-webkit-scrollbar-track { background:var(--bg); }
-  ::-webkit-scrollbar-thumb { background:var(--faint); border-radius:2px; }
+  @media(max-width:1100px){.summary-grid{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:900px){.chart-grid{grid-template-columns:1fr}.burn-grid{grid-template-columns:repeat(2,1fr)}header,.filters-bar,.tabs-nav,.tab-content{padding-left:16px;padding-right:16px}}
+  @media(max-width:600px){.summary-grid{grid-template-columns:repeat(2,1fr)}.burn-grid{grid-template-columns:1fr}.hstats{display:none}}
 </style>
 </head>
 <body>
@@ -160,31 +132,36 @@
 <header>
   <div class="header-top">
     <div>
-      <div class="header-eyebrow">// OPEN SOURCE ANALYTICS — v2.0</div>
-      <div class="header-title">DeFi Ops <span>Efficiency</span> Index</div>
-      <div class="header-sub">Revenue per Employee · Operating Margin · Capital Efficiency · Burn Phase<br>The layer DefiLlama doesn't show — operational health behind the numbers</div>
+      <div class="eyebrow">// DEFI OPS EFFICIENCY INDEX — v2.0 · 65 PROTOCOLS</div>
+      <div class="title">DeFi Ops <span>Efficiency</span> Index</div>
+      <div class="sub">Revenue per Employee · Operating Margin · Capital Efficiency · Burn Phase<br>The layer DefiLlama doesn't show — now including Hyperliquid, Solana & Base ecosystems</div>
     </div>
-    <div class="header-stats" id="headerStats">
-      <div class="hstat"><div class="hstat-val" id="hs-protocols">50</div><div class="hstat-label">Protocols</div></div>
-      <div class="hstat"><div class="hstat-val" id="hs-lean">—</div><div class="hstat-label">Lean Automators</div></div>
-      <div class="hstat"><div class="hstat-val" id="hs-burn">—</div><div class="hstat-label">In Burn Phase</div></div>
-      <div class="hstat"><div class="hstat-val" id="hs-toprev">—</div><div class="hstat-label">Top Rev/Employee</div></div>
+    <div class="hstats">
+      <div class="hstat"><div class="hstat-val" id="hs-protocols">65</div><div class="hstat-label">Protocols</div></div>
+      <div class="hstat"><div class="hstat-val" id="hs-elite" style="color:var(--elite)">2</div><div class="hstat-label">Elite Tier</div></div>
+      <div class="hstat"><div class="hstat-val" id="hs-burn" style="color:var(--burn)">—</div><div class="hstat-label">Burn Phase</div></div>
+      <div class="hstat"><div class="hstat-val" id="hs-toprev">—</div><div class="hstat-label">Top Rev/Person</div></div>
     </div>
   </div>
 </header>
 
+<div class="elite-banner">
+  <span class="elite-tag">⚡ ELITE TIER</span>
+  <span class="elite-text">Hyperliquid: <strong>$106M revenue per employee</strong> — #1 globally, beating Apple ($2.4M), Nvidia ($3.6M) & Tether ($93M)</span>
+  <span class="elite-stat">· Pump.fun: <strong>$41.7M / person</strong> · 12 people · $500M annual revenue</span>
+</div>
+
 <div class="filters-bar">
   <span class="filter-label">Cluster:</span>
-  <div class="filter-group" id="clusterFilters">
+  <div id="clusterFilters" style="display:flex;gap:6px;flex-wrap:wrap">
     <button class="chip active" data-cluster="all">All</button>
-    <button class="chip" data-cluster="0" style="--active:var(--lean)">Lean Automators</button>
-    <button class="chip" data-cluster="1" style="--active:var(--burn)">High Burn</button>
-    <button class="chip" data-cluster="2" style="--active:var(--balanced)">Balanced Growers</button>
-    <button class="chip" data-cluster="3" style="--active:var(--beast)">Revenue Beasts</button>
+    <button class="chip" data-cluster="4">⚡ Elite</button>
+    <button class="chip" data-cluster="0">Lean Automators</button>
+    <button class="chip" data-cluster="1">High Burn</button>
+    <button class="chip" data-cluster="2">Balanced</button>
+    <button class="chip" data-cluster="3">Revenue Beasts</button>
   </div>
-  <div class="search-box">
-    <input type="text" id="searchInput" placeholder="Search protocol...">
-  </div>
+  <div class="search-box"><input type="text" id="searchInput" placeholder="Search protocol..."></div>
 </div>
 
 <div class="tabs-nav">
@@ -194,89 +171,84 @@
   <button class="tab-btn" data-tab="valuation">Valuation Model</button>
 </div>
 
-<!-- TAB 1: RANKINGS -->
 <div class="tab-content active" id="tab-rankings">
   <div class="summary-grid" id="summaryCards"></div>
   <div class="table-wrap">
     <table id="mainTable">
-      <thead>
-        <tr>
-          <th data-col="rank">#</th>
-          <th data-col="Protocol">Protocol</th>
-          <th data-col="Category">Category</th>
-          <th data-col="Cluster_Name">Cluster</th>
-          <th data-col="Headcount">Team</th>
-          <th data-col="Rev_Per_Employee">Rev / Person</th>
-          <th data-col="Operating_Margin">Op. Margin</th>
-          <th data-col="Revenue_per_TVL">Rev / TVL</th>
-          <th data-col="Health_Score_v2">Health Score</th>
-          <th data-col="Annual_Revenue">Annual Rev</th>
-          <th data-col="Burn_Phase">Burn</th>
-        </tr>
-      </thead>
+      <thead><tr>
+        <th data-col="rank">#</th>
+        <th data-col="Protocol">Protocol</th>
+        <th data-col="Category">Category</th>
+        <th data-col="Cluster_Name">Cluster</th>
+        <th data-col="Headcount">Team</th>
+        <th data-col="Rev_Per_Employee">Rev / Person</th>
+        <th data-col="Operating_Margin">Op. Margin</th>
+        <th data-col="Revenue_per_TVL">Rev / TVL</th>
+        <th data-col="Health_Score_v2">Health Score</th>
+        <th data-col="Annual_Revenue">Annual Rev</th>
+        <th data-col="Burn_Phase">Status</th>
+      </tr></thead>
       <tbody id="tableBody"></tbody>
     </table>
   </div>
-  <div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center;">
-    <span style="font-family:var(--mono); font-size:11px; color:var(--muted);" id="rowCount"></span>
-    <button onclick="exportCSV()" style="background:var(--surface2); border:1px solid var(--border2); color:var(--text); font-family:var(--mono); font-size:11px; padding:6px 14px; border-radius:3px; cursor:pointer;">↓ Export CSV</button>
+  <div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center">
+    <span style="font-family:var(--mono);font-size:11px;color:var(--muted)" id="rowCount"></span>
+    <button onclick="exportCSV()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:11px;padding:6px 14px;border-radius:3px;cursor:pointer">↓ Export CSV</button>
   </div>
 </div>
 
-<!-- TAB 2: FRONTIER -->
 <div class="tab-content" id="tab-frontier">
   <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--elite)"></div>Elite Automators</div>
     <div class="legend-item"><div class="legend-dot" style="background:var(--lean)"></div>Lean Automators</div>
     <div class="legend-item"><div class="legend-dot" style="background:var(--burn)"></div>High Burn</div>
     <div class="legend-item"><div class="legend-dot" style="background:var(--balanced)"></div>Balanced Growers</div>
     <div class="legend-item"><div class="legend-dot" style="background:var(--beast)"></div>Revenue Beasts</div>
   </div>
   <div class="chart-full">
-    <div class="chart-title"><span>Revenue vs Team Size</span> — Efficiency Frontier · bubble size = Health Score</div>
-    <div id="frontierWrap"><canvas id="frontierChart"></canvas></div>
+    <div class="chart-title"><span>Revenue vs Team Size</span> — Efficiency Frontier · bubble = Health Score · log scale</div>
+    <div class="chart-wrap h440"><canvas id="frontierChart"></canvas></div>
   </div>
   <div class="chart-grid">
     <div class="chart-card">
-      <div class="chart-title"><span>Revenue per Employee</span> — Top 15</div>
-      <div class="chart-wrap h300"><canvas id="revHeadChart"></canvas></div>
+      <div class="chart-title"><span>Top 20 — Revenue per Employee</span></div>
+      <div class="chart-wrap h360"><canvas id="revHeadChart"></canvas></div>
     </div>
     <div class="chart-card">
-      <div class="chart-title"><span>Operating Margin</span> — Top 15 (profitable)</div>
-      <div class="chart-wrap h300"><canvas id="marginChart"></canvas></div>
+      <div class="chart-title"><span>Top 20 — Operating Margin</span> (profitable only)</div>
+      <div class="chart-wrap h360"><canvas id="marginChart"></canvas></div>
     </div>
   </div>
   <div class="chart-grid">
     <div class="chart-card">
-      <div class="chart-title"><span>Cluster Distribution</span> — protocol count</div>
+      <div class="chart-title"><span>Cluster Distribution</span> — 65 protocols</div>
       <div class="chart-wrap h260"><canvas id="clusterPie"></canvas></div>
     </div>
     <div class="chart-card">
-      <div class="chart-title"><span>Revenue per TVL</span> — Top 12</div>
+      <div class="chart-title"><span>Revenue per TVL</span> — Top 15</div>
       <div class="chart-wrap h260"><canvas id="revTvlChart"></canvas></div>
     </div>
   </div>
 </div>
 
-<!-- TAB 3: BURN PHASE -->
 <div class="tab-content" id="tab-burnphase">
   <div class="burn-header">
     <div class="burn-count" id="burnCount">0</div>
-    <div><div class="burn-label">Protocols in Burn Phase</div><div style="font-size:11px; color:var(--muted); margin-top:2px; font-family:var(--mono);">Operating at negative margin — spending exceeds revenue</div></div>
+    <div><div class="burn-label">Protocols in Burn Phase</div><div style="font-size:11px;color:var(--muted);margin-top:2px;font-family:var(--mono)">Spending more than they earn — negative operating margin</div></div>
   </div>
   <div class="burn-grid" id="burnGrid"></div>
   <div class="chart-full">
-    <div class="chart-title"><span>Revenue vs Expenses</span> — Burn Phase protocols</div>
+    <div class="chart-title"><span>Revenue vs Expenses</span> — All burn phase protocols</div>
     <div class="chart-wrap h360"><canvas id="burnChart"></canvas></div>
   </div>
 </div>
 
-<!-- TAB 4: VALUATION -->
 <div class="tab-content" id="tab-valuation">
   <div class="val-note">
-    <strong>Methodology:</strong> Implied FDV is estimated at <strong>5x–12x annualised revenue</strong>, adjusted by Health Score weighting. This is a rough directional model for benchmarking, not a price target. Protocols in burn phase show $0 implied valuation. <strong>Not financial advice.</strong>
+    <strong>Methodology:</strong> Implied FDV = 5x–12x annualised revenue × Health Score weighting. Elite tier (Hyperliquid, Pump.fun) scores above 100 — their FDV range reflects unprecedented efficiency multiples. Burn phase protocols show $0. <strong>Not financial advice.</strong>
   </div>
   <div class="chart-full">
-    <div class="chart-title"><span>Implied FDV Range</span> — Top 20 Protocols (Low / High scenario)</div>
+    <div class="chart-title"><span>Implied FDV Range</span> — Top 20 Protocols by Valuation</div>
     <div class="chart-wrap h360"><canvas id="fdvChart"></canvas></div>
   </div>
   <div class="chart-grid">
@@ -285,151 +257,160 @@
       <div class="chart-wrap h300"><canvas id="scoreValChart"></canvas></div>
     </div>
     <div class="chart-card">
-      <div class="chart-title"><span>Valuation Leaders</span> — Top 10 by FDV High</div>
-      <div id="valLeaderboard" style="margin-top:8px;"></div>
+      <div class="chart-title"><span>Valuation Leaders</span> — Top 10 FDV High</div>
+      <div id="valLeaderboard" style="margin-top:8px"></div>
     </div>
   </div>
 </div>
 
 <script>
+const CLUSTER_COLORS = {4:'#FFD700',0:'#00e5a0',1:'#ff6b2b',2:'#c084fc',3:'#4d8bff'};
+const CLUSTER_NAMES = {4:'Elite Automators',0:'Lean Automators',1:'High Burn',2:'Balanced Growers',3:'Revenue Beasts'};
+
 const RAW = [
-  {Protocol:"Sky Lending",Category:"Lending",Headcount:97,Annual_Expenses:27660000,Annual_Revenue:300000000,TVL:6000000000,Rev_Per_Employee:3092783.5,Operating_Margin:0.9078,Revenue_per_TVL:0.05,Burn_Phase:false,Health_Score_v2:46.97,Efficiency_Cluster:0,Cluster_Name:"Lean Automators",Implied_FDV_Low:704475341,Implied_FDV_High:1690740820},
-  {Protocol:"Aave",Category:"Lending",Headcount:25,Annual_Expenses:18070000,Annual_Revenue:200000000,TVL:20000000000,Rev_Per_Employee:8000000,Operating_Margin:0.90965,Revenue_per_TVL:0.01,Burn_Phase:false,Health_Score_v2:68.14,Efficiency_Cluster:0,Cluster_Name:"Lean Automators",Implied_FDV_Low:681429210,Implied_FDV_High:1635430105},
-  {Protocol:"Lido",Category:"Liquid Staking",Headcount:83,Annual_Expenses:16810000,Annual_Revenue:80000000,TVL:30000000000,Rev_Per_Employee:963855.4,Operating_Margin:0.789875,Revenue_per_TVL:0.0027,Burn_Phase:false,Health_Score_v2:28.74,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:114972424,Implied_FDV_High:275933818},
-  {Protocol:"Uniswap",Category:"DEX",Headcount:120,Annual_Expenses:45000000,Annual_Revenue:800000000,TVL:5000000000,Rev_Per_Employee:6666666.7,Operating_Margin:0.94375,Revenue_per_TVL:0.16,Burn_Phase:false,Health_Score_v2:75.30,Efficiency_Cluster:0,Cluster_Name:"Lean Automators",Implied_FDV_Low:3012022807,Implied_FDV_High:7228854736},
-  {Protocol:"PancakeSwap",Category:"DEX",Headcount:45,Annual_Expenses:12000000,Annual_Revenue:150000000,TVL:2000000000,Rev_Per_Employee:3333333.3,Operating_Margin:0.92,Revenue_per_TVL:0.075,Burn_Phase:false,Health_Score_v2:50.67,Efficiency_Cluster:0,Cluster_Name:"Lean Automators",Implied_FDV_Low:380004934,Implied_FDV_High:912011842},
-  {Protocol:"Curve",Category:"DEX",Headcount:20,Annual_Expenses:5000000,Annual_Revenue:7000000,TVL:2000000000,Rev_Per_Employee:350000,Operating_Margin:0.2857,Revenue_per_TVL:0.0035,Burn_Phase:false,Health_Score_v2:10.62,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:3717044,Implied_FDV_High:8920905},
-  {Protocol:"Morpho",Category:"Lending",Headcount:25,Annual_Expenses:6000000,Annual_Revenue:0,TVL:4000000000,Rev_Per_Employee:0,Operating_Margin:-1,Revenue_per_TVL:0,Burn_Phase:true,Health_Score_v2:1.0,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:0,Implied_FDV_High:0},
-  {Protocol:"Maple",Category:"Lending",Headcount:15,Annual_Expenses:8540000,Annual_Revenue:13880000,TVL:107000000,Rev_Per_Employee:925333.3,Operating_Margin:0.3847,Revenue_per_TVL:0.1297,Burn_Phase:false,Health_Score_v2:27.24,Efficiency_Cluster:1,Cluster_Name:"High Burn",Implied_FDV_Low:18903865,Implied_FDV_High:45369277},
-  {Protocol:"Sushi",Category:"DEX",Headcount:15,Annual_Expenses:5220000,Annual_Revenue:12000000,TVL:450000000,Rev_Per_Employee:800000,Operating_Margin:0.565,Revenue_per_TVL:0.0267,Burn_Phase:false,Health_Score_v2:23.23,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:13935473,Implied_FDV_High:33445136},
-  {Protocol:"Badger DAO",Category:"Yield",Headcount:15,Annual_Expenses:4170000,Annual_Revenue:2500000,TVL:180000000,Rev_Per_Employee:166666.7,Operating_Margin:-0.668,Revenue_per_TVL:0.0139,Burn_Phase:true,Health_Score_v2:2.02,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:252330,Implied_FDV_High:605592},
-  {Protocol:"Yearn Finance",Category:"Yield",Headcount:25,Annual_Expenses:3810000,Annual_Revenue:587381,TVL:250000000,Rev_Per_Employee:23495.2,Operating_Margin:-5.486,Revenue_per_TVL:0.00235,Burn_Phase:true,Health_Score_v2:1.0,Efficiency_Cluster:2,Cluster_Name:"Balanced Growers",Implied_FDV_Low:29369,Implied_FDV_High:70485},
-  {Protocol:"Beefy",Category:"Yield",Headcount:20,Annual_Expenses:2530000,Annual_Revenue:10000000,TVL:220000000,Rev_Per_Employee:500000,Operating_Margin:0.747,Revenue_per_TVL:0.0455,Burn_Phase:false,Health_Score_v2:28.79,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:14394593,Implied_FDV_High:34547023},
-  {Protocol:"Inverse Finance",Category:"Lending",Headcount:11,Annual_Expenses:1400000,Annual_Revenue:3800000,TVL:10810000,Rev_Per_Employee:345454.5,Operating_Margin:0.6316,Revenue_per_TVL:0.3515,Burn_Phase:false,Health_Score_v2:50.67,Efficiency_Cluster:1,Cluster_Name:"High Burn",Implied_FDV_Low:9628181,Implied_FDV_High:23107636},
-  {Protocol:"Gearbox",Category:"Lending",Headcount:13,Annual_Expenses:893760,Annual_Revenue:157356,TVL:100000000,Rev_Per_Employee:12104.3,Operating_Margin:-4.6798,Revenue_per_TVL:0.001574,Burn_Phase:true,Health_Score_v2:1.0,Efficiency_Cluster:2,Cluster_Name:"Balanced Growers",Implied_FDV_Low:7867,Implied_FDV_High:18882},
-  {Protocol:"Marinade",Category:"Liquid Staking",Headcount:8,Annual_Expenses:834000,Annual_Revenue:5000000,TVL:1500000000,Rev_Per_Employee:625000,Operating_Margin:0.8332,Revenue_per_TVL:0.00333,Burn_Phase:false,Health_Score_v2:28.41,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:7101368,Implied_FDV_High:17043284},
-  {Protocol:"Olympus DAO",Category:"Reserve",Headcount:8,Annual_Expenses:820369,Annual_Revenue:1200000,TVL:150000000,Rev_Per_Employee:150000,Operating_Margin:0.3164,Revenue_per_TVL:0.008,Burn_Phase:false,Health_Score_v2:10.92,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:655410,Implied_FDV_High:1572985},
-  {Protocol:"Compound",Category:"Lending",Headcount:20,Annual_Expenses:8000000,Annual_Revenue:45000000,TVL:2500000000,Rev_Per_Employee:2250000,Operating_Margin:0.8222,Revenue_per_TVL:0.018,Burn_Phase:false,Health_Score_v2:37.45,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:84268855,Implied_FDV_High:202245252},
-  {Protocol:"Synthetix",Category:"Derivatives",Headcount:35,Annual_Expenses:10000000,Annual_Revenue:35000000,TVL:500000000,Rev_Per_Employee:1000000,Operating_Margin:0.7143,Revenue_per_TVL:0.07,Burn_Phase:false,Health_Score_v2:32.40,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:56704407,Implied_FDV_High:136090578},
+  {Protocol:"Hyperliquid",Category:"Derivatives",Headcount:11,Annual_Expenses:35000000,Annual_Revenue:1167000000,TVL:15000000000,Rev_Per_Employee:106090909,Operating_Margin:0.970,Revenue_per_TVL:0.0778,Burn_Phase:false,Health_Score_v2:285,Efficiency_Cluster:4,Cluster_Name:"Elite Automators",Implied_FDV_Low:16628250000,Implied_FDV_High:39907800000},
+  {Protocol:"Pump.fun",Category:"Launchpad",Headcount:12,Annual_Expenses:8000000,Annual_Revenue:500000000,TVL:50000000,Rev_Per_Employee:41666667,Operating_Margin:0.984,Revenue_per_TVL:10.0,Burn_Phase:false,Health_Score_v2:195,Efficiency_Cluster:4,Cluster_Name:"Elite Automators",Implied_FDV_Low:4875000000,Implied_FDV_High:11700000000},
   {Protocol:"GMX",Category:"Derivatives",Headcount:15,Annual_Expenses:4500000,Annual_Revenue:120000000,TVL:600000000,Rev_Per_Employee:8000000,Operating_Margin:0.9625,Revenue_per_TVL:0.2,Burn_Phase:false,Health_Score_v2:85.94,Efficiency_Cluster:0,Cluster_Name:"Lean Automators",Implied_FDV_Low:515660526,Implied_FDV_High:1237585263},
-  {Protocol:"dYdX",Category:"Derivatives",Headcount:50,Annual_Expenses:15000000,Annual_Revenue:90000000,TVL:400000000,Rev_Per_Employee:1800000,Operating_Margin:0.8333,Revenue_per_TVL:0.225,Burn_Phase:false,Health_Score_v2:53.20,Efficiency_Cluster:1,Cluster_Name:"High Burn",Implied_FDV_Low:239408881,Implied_FDV_High:574581315},
-  {Protocol:"Jupiter",Category:"Aggregator",Headcount:40,Annual_Expenses:12000000,Annual_Revenue:60000000,TVL:1200000000,Rev_Per_Employee:1500000,Operating_Margin:0.8,Revenue_per_TVL:0.05,Burn_Phase:false,Health_Score_v2:35.77,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:107301315,Implied_FDV_High:257523157},
-  {Protocol:"Instadapp",Category:"Services",Headcount:12,Annual_Expenses:3000000,Annual_Revenue:2000000,TVL:2100000000,Rev_Per_Employee:166666.7,Operating_Margin:-0.5,Revenue_per_TVL:0.000952,Burn_Phase:true,Health_Score_v2:1.0,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:100000,Implied_FDV_High:240000},
-  {Protocol:"EigenLayer",Category:"Restaking",Headcount:60,Annual_Expenses:20000000,Annual_Revenue:0,TVL:15000000000,Rev_Per_Employee:0,Operating_Margin:-1,Revenue_per_TVL:0,Burn_Phase:true,Health_Score_v2:1.0,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:0,Implied_FDV_High:0},
-  {Protocol:"Pendle",Category:"Yield",Headcount:18,Annual_Expenses:4000000,Annual_Revenue:12000000,TVL:3000000000,Rev_Per_Employee:666666.7,Operating_Margin:0.6667,Revenue_per_TVL:0.004,Burn_Phase:false,Health_Score_v2:23.67,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:14204821,Implied_FDV_High:34091570},
-  {Protocol:"Frax",Category:"Stablecoin",Headcount:20,Annual_Expenses:6000000,Annual_Revenue:25000000,TVL:2000000000,Rev_Per_Employee:1250000,Operating_Margin:0.76,Revenue_per_TVL:0.0125,Burn_Phase:false,Health_Score_v2:30.12,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:37645970,Implied_FDV_High:90350328},
-  {Protocol:"Rocket Pool",Category:"Liquid Staking",Headcount:15,Annual_Expenses:3500000,Annual_Revenue:5000000,TVL:4000000000,Rev_Per_Employee:333333.3,Operating_Margin:0.3,Revenue_per_TVL:0.00125,Burn_Phase:false,Health_Score_v2:10.77,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:2693336,Implied_FDV_High:6464006},
+  {Protocol:"Uniswap",Category:"DEX",Headcount:120,Annual_Expenses:45000000,Annual_Revenue:800000000,TVL:5000000000,Rev_Per_Employee:6666667,Operating_Margin:0.94375,Revenue_per_TVL:0.16,Burn_Phase:false,Health_Score_v2:75.30,Efficiency_Cluster:0,Cluster_Name:"Lean Automators",Implied_FDV_Low:3012022807,Implied_FDV_High:7228854736},
+  {Protocol:"Banana Gun",Category:"Trading Bot",Headcount:8,Annual_Expenses:3000000,Annual_Revenue:30000000,TVL:0,Rev_Per_Employee:3750000,Operating_Margin:0.9,Revenue_per_TVL:null,Burn_Phase:false,Health_Score_v2:72,Efficiency_Cluster:0,Cluster_Name:"Lean Automators",Implied_FDV_Low:108000000,Implied_FDV_High:259200000},
+  {Protocol:"Aave",Category:"Lending",Headcount:25,Annual_Expenses:18070000,Annual_Revenue:200000000,TVL:20000000000,Rev_Per_Employee:8000000,Operating_Margin:0.90965,Revenue_per_TVL:0.01,Burn_Phase:false,Health_Score_v2:68.14,Efficiency_Cluster:0,Cluster_Name:"Lean Automators",Implied_FDV_Low:681429210,Implied_FDV_High:1635430105},
+  {Protocol:"Raydium",Category:"DEX",Headcount:15,Annual_Expenses:3000000,Annual_Revenue:85000000,TVL:1000000000,Rev_Per_Employee:5666667,Operating_Margin:0.9647,Revenue_per_TVL:0.085,Burn_Phase:false,Health_Score_v2:64.53,Efficiency_Cluster:0,Cluster_Name:"Lean Automators",Implied_FDV_Low:274246502,Implied_FDV_High:658191605},
   {Protocol:"Ethena",Category:"Stablecoin",Headcount:25,Annual_Expenses:8000000,Annual_Revenue:110000000,TVL:2500000000,Rev_Per_Employee:4400000,Operating_Margin:0.9273,Revenue_per_TVL:0.044,Burn_Phase:false,Health_Score_v2:53.57,Efficiency_Cluster:0,Cluster_Name:"Lean Automators",Implied_FDV_Low:294652789,Implied_FDV_High:707166694},
-  {Protocol:"Thorchain",Category:"Bridge",Headcount:20,Annual_Expenses:5000000,Annual_Revenue:40000000,TVL:800000000,Rev_Per_Employee:2000000,Operating_Margin:0.875,Revenue_per_TVL:0.05,Burn_Phase:false,Health_Score_v2:40.52,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:81034210,Implied_FDV_High:194482105},
-  {Protocol:"Balancer",Category:"DEX",Headcount:25,Annual_Expenses:7000000,Annual_Revenue:8000000,TVL:1000000000,Rev_Per_Employee:320000,Operating_Margin:0.125,Revenue_per_TVL:0.008,Burn_Phase:false,Health_Score_v2:6.03,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:2413094,Implied_FDV_High:5791427},
-  {Protocol:"Radiant",Category:"Lending",Headcount:15,Annual_Expenses:3000000,Annual_Revenue:15000000,TVL:600000000,Rev_Per_Employee:1000000,Operating_Margin:0.8,Revenue_per_TVL:0.025,Burn_Phase:false,Health_Score_v2:31.13,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:23350164,Implied_FDV_High:56040394},
-  {Protocol:"Quickswap",Category:"DEX",Headcount:10,Annual_Expenses:1500000,Annual_Revenue:10000000,TVL:150000000,Rev_Per_Employee:1000000,Operating_Margin:0.85,Revenue_per_TVL:0.0667,Burn_Phase:false,Health_Score_v2:36.19,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:18094736,Implied_FDV_High:43427368},
-  {Protocol:"Velodrome",Category:"DEX",Headcount:12,Annual_Expenses:2000000,Annual_Revenue:18000000,TVL:200000000,Rev_Per_Employee:1500000,Operating_Margin:0.8889,Revenue_per_TVL:0.09,Burn_Phase:false,Health_Score_v2:41.85,Efficiency_Cluster:1,Cluster_Name:"High Burn",Implied_FDV_Low:37662710,Implied_FDV_High:90390505},
+  {Protocol:"Gains Network",Category:"Derivatives",Headcount:10,Annual_Expenses:2000000,Annual_Revenue:20000000,TVL:100000000,Rev_Per_Employee:2000000,Operating_Margin:0.9,Revenue_per_TVL:0.2,Burn_Phase:false,Health_Score_v2:52,Efficiency_Cluster:0,Cluster_Name:"Lean Automators",Implied_FDV_Low:52000000,Implied_FDV_High:124800000},
+  {Protocol:"Unibot",Category:"Trading Bot",Headcount:10,Annual_Expenses:2500000,Annual_Revenue:15000000,TVL:0,Rev_Per_Employee:1500000,Operating_Margin:0.8333,Revenue_per_TVL:null,Burn_Phase:false,Health_Score_v2:42,Efficiency_Cluster:0,Cluster_Name:"Lean Automators",Implied_FDV_Low:31500000,Implied_FDV_High:75600000},
+  {Protocol:"dYdX",Category:"Derivatives",Headcount:50,Annual_Expenses:15000000,Annual_Revenue:90000000,TVL:400000000,Rev_Per_Employee:1800000,Operating_Margin:0.8333,Revenue_per_TVL:0.225,Burn_Phase:false,Health_Score_v2:53.20,Efficiency_Cluster:1,Cluster_Name:"High Burn",Implied_FDV_Low:239408881,Implied_FDV_High:574581315},
+  {Protocol:"PancakeSwap",Category:"DEX",Headcount:45,Annual_Expenses:12000000,Annual_Revenue:150000000,TVL:2000000000,Rev_Per_Employee:3333333,Operating_Margin:0.92,Revenue_per_TVL:0.075,Burn_Phase:false,Health_Score_v2:50.67,Efficiency_Cluster:0,Cluster_Name:"Lean Automators",Implied_FDV_Low:380004934,Implied_FDV_High:912011842},
+  {Protocol:"Inverse Finance",Category:"Lending",Headcount:11,Annual_Expenses:1400000,Annual_Revenue:3800000,TVL:10810000,Rev_Per_Employee:345455,Operating_Margin:0.6316,Revenue_per_TVL:0.3515,Burn_Phase:false,Health_Score_v2:50.67,Efficiency_Cluster:1,Cluster_Name:"High Burn",Implied_FDV_Low:9628181,Implied_FDV_High:23107636},
   {Protocol:"Aevo",Category:"Derivatives",Headcount:20,Annual_Expenses:6000000,Annual_Revenue:25000000,TVL:100000000,Rev_Per_Employee:1250000,Operating_Margin:0.76,Revenue_per_TVL:0.25,Burn_Phase:false,Health_Score_v2:50.39,Efficiency_Cluster:1,Cluster_Name:"High Burn",Implied_FDV_Low:62981907,Implied_FDV_High:151156578},
-  {Protocol:"Lyra",Category:"Options",Headcount:15,Annual_Expenses:4000000,Annual_Revenue:2000000,TVL:50000000,Rev_Per_Employee:133333.3,Operating_Margin:-1.0,Revenue_per_TVL:0.04,Burn_Phase:true,Health_Score_v2:4.08,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:408035,Implied_FDV_High:979284},
-  {Protocol:"Liquity",Category:"Lending",Headcount:10,Annual_Expenses:2500000,Annual_Revenue:1500000,TVL:600000000,Rev_Per_Employee:150000,Operating_Margin:-0.6667,Revenue_per_TVL:0.0025,Burn_Phase:true,Health_Score_v2:1.0,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:75000,Implied_FDV_High:180000},
-  {Protocol:"Convex",Category:"Yield",Headcount:10,Annual_Expenses:2000000,Annual_Revenue:5000000,TVL:3000000000,Rev_Per_Employee:500000,Operating_Margin:0.6,Revenue_per_TVL:0.001667,Burn_Phase:false,Health_Score_v2:20.64,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:5160559,Implied_FDV_High:12385342},
-  {Protocol:"Stargate",Category:"Bridge",Headcount:20,Annual_Expenses:5500000,Annual_Revenue:15000000,TVL:1000000000,Rev_Per_Employee:750000,Operating_Margin:0.6333,Revenue_per_TVL:0.015,Burn_Phase:false,Health_Score_v2:24.03,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:18022598,Implied_FDV_High:43254236},
-  {Protocol:"LayerZero",Category:"Omnichain",Headcount:80,Annual_Expenses:30000000,Annual_Revenue:0,TVL:0,Rev_Per_Employee:0,Operating_Margin:-1,Revenue_per_TVL:null,Burn_Phase:true,Health_Score_v2:1.0,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:0,Implied_FDV_High:0},
-  {Protocol:"Renzo",Category:"Restaking",Headcount:20,Annual_Expenses:5000000,Annual_Revenue:0,TVL:3000000000,Rev_Per_Employee:0,Operating_Margin:-1,Revenue_per_TVL:0,Burn_Phase:true,Health_Score_v2:1.0,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:0,Implied_FDV_High:0},
-  {Protocol:"Etherfi",Category:"Restaking",Headcount:25,Annual_Expenses:7000000,Annual_Revenue:0,TVL:6000000000,Rev_Per_Employee:0,Operating_Margin:-1,Revenue_per_TVL:0,Burn_Phase:true,Health_Score_v2:1.0,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:0,Implied_FDV_High:0},
   {Protocol:"Camelot",Category:"DEX",Headcount:8,Annual_Expenses:1200000,Annual_Revenue:15000000,TVL:100000000,Rev_Per_Employee:1875000,Operating_Margin:0.92,Revenue_per_TVL:0.15,Burn_Phase:false,Health_Score_v2:49.78,Efficiency_Cluster:1,Cluster_Name:"High Burn",Implied_FDV_Low:37332236,Implied_FDV_High:89597368},
   {Protocol:"Aerodrome",Category:"DEX",Headcount:15,Annual_Expenses:3000000,Annual_Revenue:45000000,TVL:600000000,Rev_Per_Employee:3000000,Operating_Margin:0.9333,Revenue_per_TVL:0.075,Burn_Phase:false,Health_Score_v2:49.40,Efficiency_Cluster:1,Cluster_Name:"High Burn",Implied_FDV_Low:111151480,Implied_FDV_High:266763552},
-  {Protocol:"Jito",Category:"Liquid Staking",Headcount:15,Annual_Expenses:4000000,Annual_Revenue:25000000,TVL:1800000000,Rev_Per_Employee:1666666.7,Operating_Margin:0.84,Revenue_per_TVL:0.0139,Burn_Phase:false,Health_Score_v2:34.72,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:43398300,Implied_FDV_High:104155921},
+  {Protocol:"Orca",Category:"DEX",Headcount:12,Annual_Expenses:2500000,Annual_Revenue:25000000,TVL:200000000,Rev_Per_Employee:2083333,Operating_Margin:0.9,Revenue_per_TVL:0.125,Burn_Phase:false,Health_Score_v2:48.08,Efficiency_Cluster:1,Cluster_Name:"High Burn",Implied_FDV_Low:60105537,Implied_FDV_High:144253289},
+  {Protocol:"Sky Lending",Category:"Lending",Headcount:97,Annual_Expenses:27660000,Annual_Revenue:300000000,TVL:6000000000,Rev_Per_Employee:3092784,Operating_Margin:0.9078,Revenue_per_TVL:0.05,Burn_Phase:false,Health_Score_v2:46.97,Efficiency_Cluster:0,Cluster_Name:"Lean Automators",Implied_FDV_Low:704475341,Implied_FDV_High:1690740820},
+  {Protocol:"Velodrome",Category:"DEX",Headcount:12,Annual_Expenses:2000000,Annual_Revenue:18000000,TVL:200000000,Rev_Per_Employee:1500000,Operating_Margin:0.8889,Revenue_per_TVL:0.09,Burn_Phase:false,Health_Score_v2:41.85,Efficiency_Cluster:1,Cluster_Name:"High Burn",Implied_FDV_Low:37662710,Implied_FDV_High:90390505},
+  {Protocol:"Thorchain",Category:"Bridge",Headcount:20,Annual_Expenses:5000000,Annual_Revenue:40000000,TVL:800000000,Rev_Per_Employee:2000000,Operating_Margin:0.875,Revenue_per_TVL:0.05,Burn_Phase:false,Health_Score_v2:40.52,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:81034210,Implied_FDV_High:194482105},
+  {Protocol:"Compound",Category:"Lending",Headcount:20,Annual_Expenses:8000000,Annual_Revenue:45000000,TVL:2500000000,Rev_Per_Employee:2250000,Operating_Margin:0.8222,Revenue_per_TVL:0.018,Burn_Phase:false,Health_Score_v2:37.45,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:84268855,Implied_FDV_High:202245252},
+  {Protocol:"Quickswap",Category:"DEX",Headcount:10,Annual_Expenses:1500000,Annual_Revenue:10000000,TVL:150000000,Rev_Per_Employee:1000000,Operating_Margin:0.85,Revenue_per_TVL:0.0667,Burn_Phase:false,Health_Score_v2:36.19,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:18094736,Implied_FDV_High:43427368},
+  {Protocol:"Jupiter",Category:"Aggregator",Headcount:40,Annual_Expenses:12000000,Annual_Revenue:60000000,TVL:1200000000,Rev_Per_Employee:1500000,Operating_Margin:0.8,Revenue_per_TVL:0.05,Burn_Phase:false,Health_Score_v2:35.77,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:107301315,Implied_FDV_High:257523157},
+  {Protocol:"Jito",Category:"Liquid Staking",Headcount:15,Annual_Expenses:4000000,Annual_Revenue:25000000,TVL:1800000000,Rev_Per_Employee:1666667,Operating_Margin:0.84,Revenue_per_TVL:0.0139,Burn_Phase:false,Health_Score_v2:34.72,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:43398300,Implied_FDV_High:104155921},
+  {Protocol:"Synthetix",Category:"Derivatives",Headcount:35,Annual_Expenses:10000000,Annual_Revenue:35000000,TVL:500000000,Rev_Per_Employee:1000000,Operating_Margin:0.7143,Revenue_per_TVL:0.07,Burn_Phase:false,Health_Score_v2:32.40,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:56704407,Implied_FDV_High:136090578},
+  {Protocol:"Radiant",Category:"Lending",Headcount:15,Annual_Expenses:3000000,Annual_Revenue:15000000,TVL:600000000,Rev_Per_Employee:1000000,Operating_Margin:0.8,Revenue_per_TVL:0.025,Burn_Phase:false,Health_Score_v2:31.13,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:23350164,Implied_FDV_High:56040394},
+  {Protocol:"Frax",Category:"Stablecoin",Headcount:20,Annual_Expenses:6000000,Annual_Revenue:25000000,TVL:2000000000,Rev_Per_Employee:1250000,Operating_Margin:0.76,Revenue_per_TVL:0.0125,Burn_Phase:false,Health_Score_v2:30.12,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:37645970,Implied_FDV_High:90350328},
+  {Protocol:"Meteora",Category:"DEX",Headcount:20,Annual_Expenses:4000000,Annual_Revenue:20000000,TVL:800000000,Rev_Per_Employee:1000000,Operating_Margin:0.8,Revenue_per_TVL:0.025,Burn_Phase:false,Health_Score_v2:31,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:31000000,Implied_FDV_High:74400000},
+  {Protocol:"Lido",Category:"Liquid Staking",Headcount:83,Annual_Expenses:16810000,Annual_Revenue:80000000,TVL:30000000000,Rev_Per_Employee:963855,Operating_Margin:0.789875,Revenue_per_TVL:0.0027,Burn_Phase:false,Health_Score_v2:28.74,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:114972424,Implied_FDV_High:275933818},
+  {Protocol:"Beefy",Category:"Yield",Headcount:20,Annual_Expenses:2530000,Annual_Revenue:10000000,TVL:220000000,Rev_Per_Employee:500000,Operating_Margin:0.747,Revenue_per_TVL:0.0455,Burn_Phase:false,Health_Score_v2:28.79,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:14394593,Implied_FDV_High:34547023},
+  {Protocol:"Marinade",Category:"Liquid Staking",Headcount:8,Annual_Expenses:834000,Annual_Revenue:5000000,TVL:1500000000,Rev_Per_Employee:625000,Operating_Margin:0.8332,Revenue_per_TVL:0.00333,Burn_Phase:false,Health_Score_v2:28.41,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:7101368,Implied_FDV_High:17043284},
+  {Protocol:"Maple",Category:"Lending",Headcount:15,Annual_Expenses:8540000,Annual_Revenue:13880000,TVL:107000000,Rev_Per_Employee:925333,Operating_Margin:0.3847,Revenue_per_TVL:0.1297,Burn_Phase:false,Health_Score_v2:27.24,Efficiency_Cluster:1,Cluster_Name:"High Burn",Implied_FDV_Low:18903865,Implied_FDV_High:45369277},
+  {Protocol:"Fluid Protocol",Category:"Lending",Headcount:15,Annual_Expenses:3500000,Annual_Revenue:12000000,TVL:800000000,Rev_Per_Employee:800000,Operating_Margin:0.7083,Revenue_per_TVL:0.015,Burn_Phase:false,Health_Score_v2:27,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:16200000,Implied_FDV_High:38880000},
+  {Protocol:"Stargate",Category:"Bridge",Headcount:20,Annual_Expenses:5500000,Annual_Revenue:15000000,TVL:1000000000,Rev_Per_Employee:750000,Operating_Margin:0.6333,Revenue_per_TVL:0.015,Burn_Phase:false,Health_Score_v2:24.03,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:18022598,Implied_FDV_High:43254236},
   {Protocol:"Benqi",Category:"Lending",Headcount:12,Annual_Expenses:2000000,Annual_Revenue:6000000,TVL:300000000,Rev_Per_Employee:500000,Operating_Margin:0.6667,Revenue_per_TVL:0.02,Burn_Phase:false,Health_Score_v2:24.21,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:7262052,Implied_FDV_High:17428926},
-  {Protocol:"Venus",Category:"Lending",Headcount:20,Annual_Expenses:5000000,Annual_Revenue:35000000,TVL:1500000000,Rev_Per_Employee:1750000,Operating_Margin:0.8571,Revenue_per_TVL:0.0233,Burn_Phase:false,Health_Score_v2:36.46,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:63797302,Implied_FDV_High:153113526},
+  {Protocol:"Sushi",Category:"DEX",Headcount:15,Annual_Expenses:5220000,Annual_Revenue:12000000,TVL:450000000,Rev_Per_Employee:800000,Operating_Margin:0.565,Revenue_per_TVL:0.0267,Burn_Phase:false,Health_Score_v2:23.23,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:13935473,Implied_FDV_High:33445136},
+  {Protocol:"Drift Protocol",Category:"Derivatives",Headcount:25,Annual_Expenses:6000000,Annual_Revenue:15000000,TVL:500000000,Rev_Per_Employee:600000,Operating_Margin:0.6,Revenue_per_TVL:0.03,Burn_Phase:false,Health_Score_v2:22,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:16500000,Implied_FDV_High:39600000},
+  {Protocol:"Kamino Finance",Category:"Lending",Headcount:20,Annual_Expenses:3500000,Annual_Revenue:11000000,TVL:950000000,Rev_Per_Employee:550000,Operating_Margin:0.682,Revenue_per_TVL:0.01158,Burn_Phase:false,Health_Score_v2:21,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:11550000,Implied_FDV_High:27720000},
+  {Protocol:"Pendle",Category:"Yield",Headcount:18,Annual_Expenses:4000000,Annual_Revenue:12000000,TVL:3000000000,Rev_Per_Employee:666667,Operating_Margin:0.6667,Revenue_per_TVL:0.004,Burn_Phase:false,Health_Score_v2:23.67,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:14204821,Implied_FDV_High:34091570},
+  {Protocol:"Usual Protocol",Category:"Stablecoin",Headcount:25,Annual_Expenses:7000000,Annual_Revenue:18000000,TVL:1500000000,Rev_Per_Employee:720000,Operating_Margin:0.611,Revenue_per_TVL:0.012,Burn_Phase:false,Health_Score_v2:20,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:18000000,Implied_FDV_High:43200000},
+  {Protocol:"Convex",Category:"Yield",Headcount:10,Annual_Expenses:2000000,Annual_Revenue:5000000,TVL:3000000000,Rev_Per_Employee:500000,Operating_Margin:0.6,Revenue_per_TVL:0.00167,Burn_Phase:false,Health_Score_v2:20.64,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:5160559,Implied_FDV_High:12385342},
+  {Protocol:"Kamino Finance",Category:"Lending",Headcount:20,Annual_Expenses:3500000,Annual_Revenue:11000000,TVL:950000000,Rev_Per_Employee:550000,Operating_Margin:0.682,Revenue_per_TVL:0.01158,Burn_Phase:false,Health_Score_v2:21,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:11550000,Implied_FDV_High:27720000},
   {Protocol:"Osmosis",Category:"DEX",Headcount:30,Annual_Expenses:8000000,Annual_Revenue:12000000,TVL:600000000,Rev_Per_Employee:400000,Operating_Margin:0.3333,Revenue_per_TVL:0.02,Burn_Phase:false,Health_Score_v2:13.71,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:8224105,Implied_FDV_High:19737852},
-  {Protocol:"Orca",Category:"DEX",Headcount:12,Annual_Expenses:2500000,Annual_Revenue:25000000,TVL:200000000,Rev_Per_Employee:2083333.3,Operating_Margin:0.9,Revenue_per_TVL:0.125,Burn_Phase:false,Health_Score_v2:48.08,Efficiency_Cluster:1,Cluster_Name:"High Burn",Implied_FDV_Low:60105537,Implied_FDV_High:144253289},
-  {Protocol:"Raydium",Category:"DEX",Headcount:15,Annual_Expenses:3000000,Annual_Revenue:85000000,TVL:1000000000,Rev_Per_Employee:5666666.7,Operating_Margin:0.9647,Revenue_per_TVL:0.085,Burn_Phase:false,Health_Score_v2:64.53,Efficiency_Cluster:0,Cluster_Name:"Lean Automators",Implied_FDV_Low:274246502,Implied_FDV_High:658191605},
-  {Protocol:"Loopring",Category:"L2",Headcount:25,Annual_Expenses:6000000,Annual_Revenue:2000000,TVL:150000000,Rev_Per_Employee:80000,Operating_Margin:-2.0,Revenue_per_TVL:0.0133,Burn_Phase:true,Health_Score_v2:1.54,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:153789,Implied_FDV_High:369094}
+  {Protocol:"Olympus DAO",Category:"Reserve",Headcount:8,Annual_Expenses:820369,Annual_Revenue:1200000,TVL:150000000,Rev_Per_Employee:150000,Operating_Margin:0.3164,Revenue_per_TVL:0.008,Burn_Phase:false,Health_Score_v2:10.92,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:655410,Implied_FDV_High:1572985},
+  {Protocol:"Rocket Pool",Category:"Liquid Staking",Headcount:15,Annual_Expenses:3500000,Annual_Revenue:5000000,TVL:4000000000,Rev_Per_Employee:333333,Operating_Margin:0.3,Revenue_per_TVL:0.00125,Burn_Phase:false,Health_Score_v2:10.77,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:2693336,Implied_FDV_High:6464006},
+  {Protocol:"Curve",Category:"DEX",Headcount:20,Annual_Expenses:5000000,Annual_Revenue:7000000,TVL:2000000000,Rev_Per_Employee:350000,Operating_Margin:0.2857,Revenue_per_TVL:0.0035,Burn_Phase:false,Health_Score_v2:10.62,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:3717044,Implied_FDV_High:8920905},
+  {Protocol:"Balancer",Category:"DEX",Headcount:25,Annual_Expenses:7000000,Annual_Revenue:8000000,TVL:1000000000,Rev_Per_Employee:320000,Operating_Margin:0.125,Revenue_per_TVL:0.008,Burn_Phase:false,Health_Score_v2:6.03,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:2413094,Implied_FDV_High:5791427},
+  {Protocol:"1inch",Category:"Aggregator",Headcount:120,Annual_Expenses:18000000,Annual_Revenue:20000000,TVL:0,Rev_Per_Employee:166667,Operating_Margin:0.1,Revenue_per_TVL:null,Burn_Phase:false,Health_Score_v2:5,Efficiency_Cluster:1,Cluster_Name:"High Burn",Implied_FDV_Low:5000000,Implied_FDV_High:12000000},
+  {Protocol:"Blur",Category:"NFT",Headcount:30,Annual_Expenses:8000000,Annual_Revenue:15000000,TVL:200000000,Rev_Per_Employee:500000,Operating_Margin:0.4667,Revenue_per_TVL:0.075,Burn_Phase:false,Health_Score_v2:16,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:12000000,Implied_FDV_High:28800000},
+  {Protocol:"Venus",Category:"Lending",Headcount:20,Annual_Expenses:5000000,Annual_Revenue:35000000,TVL:1500000000,Rev_Per_Employee:1750000,Operating_Margin:0.8571,Revenue_per_TVL:0.0233,Burn_Phase:false,Health_Score_v2:36.46,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:63797302,Implied_FDV_High:153113526},
+  // burn phase
+  {Protocol:"EigenLayer",Category:"Restaking",Headcount:60,Annual_Expenses:20000000,Annual_Revenue:0,TVL:15000000000,Rev_Per_Employee:0,Operating_Margin:-1,Revenue_per_TVL:0,Burn_Phase:true,Health_Score_v2:1,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:0,Implied_FDV_High:0},
+  {Protocol:"LayerZero",Category:"Omnichain",Headcount:80,Annual_Expenses:30000000,Annual_Revenue:0,TVL:0,Rev_Per_Employee:0,Operating_Margin:-1,Revenue_per_TVL:null,Burn_Phase:true,Health_Score_v2:1,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:0,Implied_FDV_High:0},
+  {Protocol:"Etherfi",Category:"Restaking",Headcount:25,Annual_Expenses:7000000,Annual_Revenue:0,TVL:6000000000,Rev_Per_Employee:0,Operating_Margin:-1,Revenue_per_TVL:0,Burn_Phase:true,Health_Score_v2:1,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:0,Implied_FDV_High:0},
+  {Protocol:"Renzo",Category:"Restaking",Headcount:20,Annual_Expenses:5000000,Annual_Revenue:0,TVL:3000000000,Rev_Per_Employee:0,Operating_Margin:-1,Revenue_per_TVL:0,Burn_Phase:true,Health_Score_v2:1,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:0,Implied_FDV_High:0},
+  {Protocol:"Morpho",Category:"Lending",Headcount:25,Annual_Expenses:6000000,Annual_Revenue:0,TVL:4000000000,Rev_Per_Employee:0,Operating_Margin:-1,Revenue_per_TVL:0,Burn_Phase:true,Health_Score_v2:1,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:0,Implied_FDV_High:0},
+  {Protocol:"Wormhole",Category:"Bridge",Headcount:65,Annual_Expenses:20000000,Annual_Revenue:10000000,TVL:1000000000,Rev_Per_Employee:153846,Operating_Margin:-1,Revenue_per_TVL:0.01,Burn_Phase:true,Health_Score_v2:1,Efficiency_Cluster:1,Cluster_Name:"High Burn",Implied_FDV_Low:0,Implied_FDV_High:0},
+  {Protocol:"Across Protocol",Category:"Bridge",Headcount:25,Annual_Expenses:6000000,Annual_Revenue:5000000,TVL:500000000,Rev_Per_Employee:200000,Operating_Margin:-0.2,Revenue_per_TVL:0.01,Burn_Phase:true,Health_Score_v2:1,Efficiency_Cluster:1,Cluster_Name:"High Burn",Implied_FDV_Low:0,Implied_FDV_High:0},
+  {Protocol:"CoW Protocol",Category:"DEX",Headcount:45,Annual_Expenses:9000000,Annual_Revenue:8000000,TVL:0,Rev_Per_Employee:177778,Operating_Margin:-0.125,Revenue_per_TVL:null,Burn_Phase:true,Health_Score_v2:1,Efficiency_Cluster:2,Cluster_Name:"Balanced Growers",Implied_FDV_Low:0,Implied_FDV_High:0},
+  {Protocol:"Instadapp",Category:"Services",Headcount:12,Annual_Expenses:3000000,Annual_Revenue:2000000,TVL:2100000000,Rev_Per_Employee:166667,Operating_Margin:-0.5,Revenue_per_TVL:0.00095,Burn_Phase:true,Health_Score_v2:1,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:0,Implied_FDV_High:0},
+  {Protocol:"Badger DAO",Category:"Yield",Headcount:15,Annual_Expenses:4170000,Annual_Revenue:2500000,TVL:180000000,Rev_Per_Employee:166667,Operating_Margin:-0.668,Revenue_per_TVL:0.0139,Burn_Phase:true,Health_Score_v2:2.02,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:252330,Implied_FDV_High:605592},
+  {Protocol:"Lyra",Category:"Options",Headcount:15,Annual_Expenses:4000000,Annual_Revenue:2000000,TVL:50000000,Rev_Per_Employee:133333,Operating_Margin:-1,Revenue_per_TVL:0.04,Burn_Phase:true,Health_Score_v2:4.08,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:408035,Implied_FDV_High:979284},
+  {Protocol:"Loopring",Category:"L2",Headcount:25,Annual_Expenses:6000000,Annual_Revenue:2000000,TVL:150000000,Rev_Per_Employee:80000,Operating_Margin:-2,Revenue_per_TVL:0.0133,Burn_Phase:true,Health_Score_v2:1.54,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:153789,Implied_FDV_High:369094},
+  {Protocol:"Gearbox",Category:"Lending",Headcount:13,Annual_Expenses:893760,Annual_Revenue:157356,TVL:100000000,Rev_Per_Employee:12104,Operating_Margin:-4.68,Revenue_per_TVL:0.00157,Burn_Phase:true,Health_Score_v2:1,Efficiency_Cluster:2,Cluster_Name:"Balanced Growers",Implied_FDV_Low:0,Implied_FDV_High:0},
+  {Protocol:"Yearn Finance",Category:"Yield",Headcount:25,Annual_Expenses:3810000,Annual_Revenue:587381,TVL:250000000,Rev_Per_Employee:23495,Operating_Margin:-5.486,Revenue_per_TVL:0.00235,Burn_Phase:true,Health_Score_v2:1,Efficiency_Cluster:2,Cluster_Name:"Balanced Growers",Implied_FDV_Low:0,Implied_FDV_High:0},
+  {Protocol:"Liquity",Category:"Lending",Headcount:10,Annual_Expenses:2500000,Annual_Revenue:1500000,TVL:600000000,Rev_Per_Employee:150000,Operating_Margin:-0.6667,Revenue_per_TVL:0.0025,Burn_Phase:true,Health_Score_v2:1,Efficiency_Cluster:3,Cluster_Name:"Revenue Beasts",Implied_FDV_Low:0,Implied_FDV_High:0},
 ];
 
-const CLUSTER_COLORS = {0:'#00e5a0',1:'#ff6b2b',2:'#c084fc',3:'#4d8bff'};
-const CLUSTER_NAMES = {0:'Lean Automators',1:'High Burn',2:'Balanced Growers',3:'Revenue Beasts'};
-const fmt = (n,prefix='',suffix='') => {
-  if(n===null||n===undefined||isNaN(n)) return '—';
-  if(Math.abs(n)>=1e9) return prefix+(n/1e9).toFixed(2)+'B'+suffix;
-  if(Math.abs(n)>=1e6) return prefix+(n/1e6).toFixed(2)+'M'+suffix;
-  if(Math.abs(n)>=1e3) return prefix+(n/1e3).toFixed(1)+'K'+suffix;
-  return prefix+n.toFixed(2)+suffix;
-};
-const pct = v => v===null||v===undefined||isNaN(v)?'—':(v*100).toFixed(1)+'%';
+// dedupe by protocol name (Kamino was doubled in raw)
+const PROTOCOLS = RAW.filter((v,i,a)=>a.findIndex(t=>t.Protocol===v.Protocol)===i);
 
-let currentCluster = 'all';
-let currentSearch = '';
-let sortCol = 'Health_Score_v2';
-let sortDir = -1;
-let charts = {};
+const fmt=(n,p='',s='')=>{if(n===null||n===undefined||isNaN(n))return'—';if(Math.abs(n)>=1e9)return p+(n/1e9).toFixed(2)+'B'+s;if(Math.abs(n)>=1e6)return p+(n/1e6).toFixed(2)+'M'+s;if(Math.abs(n)>=1e3)return p+(n/1e3).toFixed(1)+'K'+s;return p+n.toFixed(0)+s};
+const pct=v=>v===null||v===undefined||isNaN(v)?'—':(v*100).toFixed(1)+'%';
 
-function getFiltered() {
-  return RAW.filter(d => {
-    if(currentCluster!=='all' && d.Efficiency_Cluster !== parseInt(currentCluster)) return false;
-    if(currentSearch && !d.Protocol.toLowerCase().includes(currentSearch.toLowerCase()) && !d.Category.toLowerCase().includes(currentSearch.toLowerCase())) return false;
+let currentCluster='all',currentSearch='',sortCol='Health_Score_v2',sortDir=-1;
+let charts={};
+
+function getFiltered(){
+  return PROTOCOLS.filter(d=>{
+    if(currentCluster!=='all'&&d.Efficiency_Cluster!==parseInt(currentCluster))return false;
+    if(currentSearch&&!d.Protocol.toLowerCase().includes(currentSearch.toLowerCase())&&!d.Category.toLowerCase().includes(currentSearch.toLowerCase()))return false;
     return true;
   });
 }
 
-function renderSummaryCards(data) {
-  const total = data.length;
-  const lean = data.filter(d=>d.Efficiency_Cluster===0).length;
-  const burnCount = data.filter(d=>d.Burn_Phase).length;
-  const profitable = data.filter(d=>!d.Burn_Phase);
-  const avgMargin = profitable.length? profitable.reduce((a,b)=>a+b.Operating_Margin,0)/profitable.length : 0;
-  const topRev = data.filter(d=>d.Rev_Per_Employee>0).sort((a,b)=>b.Rev_Per_Employee-a.Rev_Per_Employee)[0];
-  const totalTVL = data.reduce((a,b)=>a+(b.TVL||0),0);
-  document.getElementById('summaryCards').innerHTML = `
-    <div class="scard" style="--accent:var(--lean)"><div class="scard-label">Protocols</div><div class="scard-val">${total}</div><div class="scard-sub">in current filter</div></div>
-    <div class="scard" style="--accent:var(--lean)"><div class="scard-label">Lean Automators</div><div class="scard-val">${lean}</div><div class="scard-sub">${((lean/total)*100).toFixed(0)}% of filtered</div></div>
-    <div class="scard" style="--accent:var(--burn)"><div class="scard-label">Burn Phase</div><div class="scard-val">${burnCount}</div><div class="scard-sub">negative operating margin</div></div>
-    <div class="scard" style="--accent:var(--beast)"><div class="scard-label">Avg Op. Margin</div><div class="scard-val">${(avgMargin*100).toFixed(1)}%</div><div class="scard-sub">profitable protocols only</div></div>
-    <div class="scard" style="--accent:var(--balanced)"><div class="scard-label">Top Rev/Person</div><div class="scard-val">${topRev?fmt(topRev.Rev_Per_Employee,'$'):'—'}</div><div class="scard-sub">${topRev?topRev.Protocol:'—'}</div></div>
+function renderSummaryCards(data){
+  const total=data.length,elite=data.filter(d=>d.Efficiency_Cluster===4).length,burnCount=data.filter(d=>d.Burn_Phase).length;
+  const profitable=data.filter(d=>!d.Burn_Phase&&d.Operating_Margin>0);
+  const avgMargin=profitable.length?profitable.reduce((a,b)=>a+b.Operating_Margin,0)/profitable.length:0;
+  const topRev=data.filter(d=>d.Rev_Per_Employee>0).sort((a,b)=>b.Rev_Per_Employee-a.Rev_Per_Employee)[0];
+  const totalTVL=data.reduce((a,b)=>a+(b.TVL||0),0);
+  document.getElementById('summaryCards').innerHTML=`
+    <div class="scard" style="--accent:var(--lean)"><div class="scard-label">Protocols</div><div class="scard-val">${total}</div><div class="scard-sub">in current view</div></div>
+    <div class="scard" style="--accent:var(--elite)"><div class="scard-label">Elite Tier</div><div class="scard-val" style="color:var(--elite)">${elite}</div><div class="scard-sub">$100M+ rev/person</div></div>
+    <div class="scard" style="--accent:var(--burn)"><div class="scard-label">Burn Phase</div><div class="scard-val" style="color:var(--burn)">${burnCount}</div><div class="scard-sub">negative margin</div></div>
+    <div class="scard" style="--accent:var(--beast)"><div class="scard-label">Avg Margin</div><div class="scard-val">${(avgMargin*100).toFixed(1)}%</div><div class="scard-sub">profitable only</div></div>
+    <div class="scard" style="--accent:var(--elite)"><div class="scard-label">Top Rev/Person</div><div class="scard-val" style="color:var(--elite)">${topRev?fmt(topRev.Rev_Per_Employee,'$'):'—'}</div><div class="scard-sub">${topRev?topRev.Protocol:'—'}</div></div>
+    <div class="scard" style="--accent:var(--balanced)"><div class="scard-label">Total TVL</div><div class="scard-val">${fmt(totalTVL,'$')}</div><div class="scard-sub">tracked protocols</div></div>
   `;
-  document.getElementById('hs-protocols').textContent = RAW.length;
-  document.getElementById('hs-lean').textContent = RAW.filter(d=>d.Efficiency_Cluster===0).length;
-  document.getElementById('hs-burn').textContent = RAW.filter(d=>d.Burn_Phase).length;
-  const top = RAW.filter(d=>d.Rev_Per_Employee>0).sort((a,b)=>b.Rev_Per_Employee-a.Rev_Per_Employee)[0];
-  document.getElementById('hs-toprev').textContent = top?fmt(top.Rev_Per_Employee,'$'):'—';
+  document.getElementById('hs-protocols').textContent=PROTOCOLS.length;
+  document.getElementById('hs-burn').textContent=PROTOCOLS.filter(d=>d.Burn_Phase).length;
+  const top=PROTOCOLS.filter(d=>d.Rev_Per_Employee>0).sort((a,b)=>b.Rev_Per_Employee-a.Rev_Per_Employee)[0];
+  document.getElementById('hs-toprev').textContent=top?fmt(top.Rev_Per_Employee,'$'):'—';
 }
 
-function renderTable(data) {
-  const sorted = [...data].sort((a,b)=>{
-    let av = a[sortCol], bv = b[sortCol];
-    if(av===null||av===undefined) return 1;
-    if(bv===null||bv===undefined) return -1;
-    return (av>bv?1:-1)*sortDir;
+function renderTable(data){
+  const sorted=[...data].sort((a,b)=>{
+    let av=a[sortCol],bv=b[sortCol];
+    if(av===null||av===undefined)return 1;if(bv===null||bv===undefined)return -1;
+    return(av>bv?1:-1)*sortDir;
   });
-  const maxHealth = Math.max(...data.map(d=>d.Health_Score_v2));
-  const maxRev = Math.max(...data.map(d=>d.Rev_Per_Employee||0));
-  let html = '';
-  sorted.forEach((d,i) => {
-    const cc = CLUSTER_COLORS[d.Efficiency_Cluster];
-    const marginColor = d.Operating_Margin<0?'pos-red':'pos-green';
-    const healthPct = (d.Health_Score_v2/maxHealth*100).toFixed(0);
-    const revPct = (d.Rev_Per_Employee/maxRev*100).toFixed(0);
-    html += `<tr>
+  const maxHealth=Math.max(...data.map(d=>d.Health_Score_v2));
+  const maxRev=Math.max(...data.map(d=>d.Rev_Per_Employee||0));
+  let html='';
+  sorted.forEach((d,i)=>{
+    const cc=CLUSTER_COLORS[d.Efficiency_Cluster];
+    const mc=d.Operating_Margin<0?'pos-red':'pos-green';
+    const hp=Math.min((d.Health_Score_v2/maxHealth*100),100).toFixed(0);
+    const rp=Math.min((d.Rev_Per_Employee/maxRev*100),100).toFixed(0);
+    const elClass=d.Efficiency_Cluster===4?'elite-row':'';
+    html+=`<tr class="${elClass}">
       <td style="color:var(--muted)">${i+1}</td>
-      <td class="protocol-name">${d.Burn_Phase?'<span class="burn-dot"></span>':''}${d.Protocol}</td>
+      <td class="pname">${d.Burn_Phase?'<span class="burn-dot"></span>':''}${d.Efficiency_Cluster===4?'⚡ ':''}${d.Protocol}</td>
       <td style="color:var(--muted)">${d.Category}</td>
-      <td><span class="cluster-badge" style="background:${cc}22;color:${cc};border:1px solid ${cc}44">${d.Cluster_Name}</span></td>
+      <td><span class="cbadge" style="background:${cc}22;color:${cc};border:1px solid ${cc}44">${d.Cluster_Name}</span></td>
       <td>${d.Headcount}</td>
-      <td><div class="bar-cell">${fmt(d.Rev_Per_Employee,'$')}<div class="bar-bg"><div class="bar-fill" style="width:${revPct}%;background:${cc}"></div></div></div></td>
-      <td class="${marginColor}">${pct(d.Operating_Margin)}</td>
+      <td><div class="bar-cell">${fmt(d.Rev_Per_Employee,'$')}<div class="bar-bg"><div class="bar-fill" style="width:${rp}%;background:${cc}"></div></div></div></td>
+      <td class="${mc}">${pct(d.Operating_Margin)}</td>
       <td>${d.Revenue_per_TVL!=null?(d.Revenue_per_TVL*100).toFixed(3)+'%':'—'}</td>
-      <td><div class="bar-cell">${d.Health_Score_v2.toFixed(1)}<div class="bar-bg"><div class="bar-fill" style="width:${healthPct}%;background:${cc}"></div></div></div></td>
+      <td><div class="bar-cell">${d.Health_Score_v2.toFixed(1)}<div class="bar-bg"><div class="bar-fill" style="width:${hp}%;background:${cc}"></div></div></div></td>
       <td>${fmt(d.Annual_Revenue,'$')}</td>
-      <td>${d.Burn_Phase?'<span style="color:var(--burn);font-family:var(--mono);font-size:11px">BURN</span>':'<span style="color:var(--lean);font-size:11px">✓</span>'}</td>
+      <td>${d.Burn_Phase?'<span style="color:var(--burn);font-size:11px">BURN</span>':'<span style="color:var(--lean);font-size:11px">✓</span>'}</td>
     </tr>`;
   });
-  document.getElementById('tableBody').innerHTML = html;
-  document.getElementById('rowCount').textContent = `${sorted.length} protocols`;
+  document.getElementById('tableBody').innerHTML=html;
+  document.getElementById('rowCount').textContent=`${sorted.length} protocols shown`;
 }
 
-function setupTableSort() {
-  document.querySelectorAll('thead th[data-col]').forEach(th => {
-    th.addEventListener('click', () => {
-      const col = th.dataset.col;
-      if(col==='rank') return;
-      if(sortCol===col) sortDir*=-1; else { sortCol=col; sortDir=-1; }
+function setupSort(){
+  document.querySelectorAll('thead th[data-col]').forEach(th=>{
+    th.addEventListener('click',()=>{
+      const col=th.dataset.col;if(col==='rank')return;
+      if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=-1;}
       document.querySelectorAll('thead th').forEach(h=>h.classList.remove('sort-asc','sort-desc'));
       th.classList.add(sortDir===1?'sort-asc':'sort-desc');
       renderTable(getFiltered());
@@ -437,199 +418,121 @@ function setupTableSort() {
   });
 }
 
-function renderFrontierChart(data) {
-  if(charts.frontier) charts.frontier.destroy();
-  const datasets = [0,1,2,3].map(cluster => ({
-    label: CLUSTER_NAMES[cluster],
-    data: data.filter(d=>d.Efficiency_Cluster===cluster).map(d=>({x:d.Headcount,y:d.Annual_Revenue,r:Math.max(4,d.Health_Score_v2/2.5),label:d.Protocol})),
-    backgroundColor: CLUSTER_COLORS[cluster]+'88',
-    borderColor: CLUSTER_COLORS[cluster],
-    borderWidth: 1.5
+function mk(id){if(charts[id])charts[id].destroy();}
+
+function renderFrontier(data){
+  mk('frontier');
+  const ds=[4,0,1,2,3].map(cl=>({
+    label:CLUSTER_NAMES[cl],
+    data:data.filter(d=>d.Efficiency_Cluster===cl).map(d=>({x:d.Headcount,y:Math.max(d.Annual_Revenue,1),r:Math.max(4,Math.min(d.Health_Score_v2/4,40)),label:d.Protocol})),
+    backgroundColor:CLUSTER_COLORS[cl]+'88',borderColor:CLUSTER_COLORS[cl],borderWidth:1.5
   }));
-  charts.frontier = new Chart(document.getElementById('frontierChart'), {
-    type:'bubble',
-    data:{datasets},
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{
-        legend:{display:false},
-        tooltip:{callbacks:{label:ctx=>{const d=ctx.raw;return `${d.label} — Team: ${d.x} | Rev: ${fmt(d.y,'$')}`;}}},
-      },
-      scales:{
-        x:{title:{display:true,text:'Team Size (headcount)',color:'#6b7a8d',font:{size:11}},ticks:{color:'#6b7a8d',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},
-        y:{type:'logarithmic',title:{display:true,text:'Annual Revenue (log scale)',color:'#6b7a8d',font:{size:11}},ticks:{color:'#6b7a8d',font:{size:10},callback:v=>fmt(v,'$')},grid:{color:'rgba(255,255,255,0.04)'}}
-      }
-    }
-  });
+  charts.frontier=new Chart(document.getElementById('frontierChart'),{type:'bubble',data:{datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw.label} — Team:${ctx.raw.x} | Rev:${fmt(ctx.raw.y,'$')}`}}},scales:{x:{title:{display:true,text:'Team Size',color:'#6b7a8d',font:{size:11}},ticks:{color:'#6b7a8d',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},y:{type:'logarithmic',title:{display:true,text:'Annual Revenue (log)',color:'#6b7a8d',font:{size:11}},ticks:{color:'#6b7a8d',font:{size:10},callback:v=>fmt(v,'$')},grid:{color:'rgba(255,255,255,0.04)'}}}}});
 }
 
-function renderRevHeadChart(data) {
-  if(charts.revHead) charts.revHead.destroy();
-  const top = data.filter(d=>d.Rev_Per_Employee>0).sort((a,b)=>b.Rev_Per_Employee-a.Rev_Per_Employee).slice(0,15);
-  charts.revHead = new Chart(document.getElementById('revHeadChart'), {
-    type:'bar',
-    data:{labels:top.map(d=>d.Protocol),datasets:[{data:top.map(d=>d.Rev_Per_Employee),backgroundColor:top.map(d=>CLUSTER_COLORS[d.Efficiency_Cluster]+'cc'),borderColor:top.map(d=>CLUSTER_COLORS[d.Efficiency_Cluster]),borderWidth:1}]},
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fmt(ctx.raw,'$')}}},scales:{x:{ticks:{color:'#6b7a8d',font:{size:10},callback:v=>fmt(v,'$')},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#e8edf2',font:{size:10}},grid:{display:false}}}}
-  });
+function renderRevHead(data){
+  mk('revHead');
+  const top=data.filter(d=>d.Rev_Per_Employee>0).sort((a,b)=>b.Rev_Per_Employee-a.Rev_Per_Employee).slice(0,20);
+  charts.revHead=new Chart(document.getElementById('revHeadChart'),{type:'bar',data:{labels:top.map(d=>d.Protocol),datasets:[{data:top.map(d=>d.Rev_Per_Employee),backgroundColor:top.map(d=>CLUSTER_COLORS[d.Efficiency_Cluster]+'cc'),borderColor:top.map(d=>CLUSTER_COLORS[d.Efficiency_Cluster]),borderWidth:1}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fmt(ctx.raw,'$')}}},scales:{x:{ticks:{color:'#6b7a8d',font:{size:10},callback:v=>fmt(v,'$')},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#e8edf2',font:{size:10}},grid:{display:false}}}}});
 }
 
-function renderMarginChart(data) {
-  if(charts.margin) charts.margin.destroy();
-  const top = data.filter(d=>d.Operating_Margin>0).sort((a,b)=>b.Operating_Margin-a.Operating_Margin).slice(0,15);
-  charts.margin = new Chart(document.getElementById('marginChart'), {
-    type:'bar',
-    data:{labels:top.map(d=>d.Protocol),datasets:[{data:top.map(d=>(d.Operating_Margin*100).toFixed(1)),backgroundColor:top.map(d=>CLUSTER_COLORS[d.Efficiency_Cluster]+'cc'),borderColor:top.map(d=>CLUSTER_COLORS[d.Efficiency_Cluster]),borderWidth:1}]},
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw+'%'}}},scales:{x:{ticks:{color:'#6b7a8d',font:{size:10},callback:v=>v+'%'},grid:{color:'rgba(255,255,255,0.04)'},max:100},y:{ticks:{color:'#e8edf2',font:{size:10}},grid:{display:false}}}}
-  });
+function renderMargin(data){
+  mk('margin');
+  const top=data.filter(d=>d.Operating_Margin>0).sort((a,b)=>b.Operating_Margin-a.Operating_Margin).slice(0,20);
+  charts.margin=new Chart(document.getElementById('marginChart'),{type:'bar',data:{labels:top.map(d=>d.Protocol),datasets:[{data:top.map(d=>(d.Operating_Margin*100).toFixed(1)),backgroundColor:top.map(d=>CLUSTER_COLORS[d.Efficiency_Cluster]+'cc'),borderColor:top.map(d=>CLUSTER_COLORS[d.Efficiency_Cluster]),borderWidth:1}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw+'%'}}},scales:{x:{ticks:{color:'#6b7a8d',font:{size:10},callback:v=>v+'%'},grid:{color:'rgba(255,255,255,0.04)'},max:100},y:{ticks:{color:'#e8edf2',font:{size:10}},grid:{display:false}}}}});
 }
 
-function renderClusterPie(data) {
-  if(charts.pie) charts.pie.destroy();
-  const counts = [0,1,2,3].map(c=>data.filter(d=>d.Efficiency_Cluster===c).length);
-  charts.pie = new Chart(document.getElementById('clusterPie'), {
-    type:'doughnut',
-    data:{labels:Object.values(CLUSTER_NAMES),datasets:[{data:counts,backgroundColor:Object.values(CLUSTER_COLORS).map(c=>c+'cc'),borderColor:Object.values(CLUSTER_COLORS),borderWidth:2}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#6b7a8d',font:{size:10},padding:12,usePointStyle:true}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw} protocols`}}}}
-  });
+function renderPie(data){
+  mk('pie');
+  const counts=[4,0,1,2,3].map(c=>data.filter(d=>d.Efficiency_Cluster===c).length);
+  charts.pie=new Chart(document.getElementById('clusterPie'),{type:'doughnut',data:{labels:Object.values(CLUSTER_NAMES),datasets:[{data:counts,backgroundColor:Object.values(CLUSTER_COLORS).map(c=>c+'cc'),borderColor:Object.values(CLUSTER_COLORS),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#6b7a8d',font:{size:10},padding:12,usePointStyle:true}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw} protocols`}}}}});
 }
 
-function renderRevTvlChart(data) {
-  if(charts.revTvl) charts.revTvl.destroy();
-  const top = data.filter(d=>d.Revenue_per_TVL>0).sort((a,b)=>b.Revenue_per_TVL-a.Revenue_per_TVL).slice(0,12);
-  charts.revTvl = new Chart(document.getElementById('revTvlChart'), {
-    type:'bar',
-    data:{labels:top.map(d=>d.Protocol),datasets:[{data:top.map(d=>(d.Revenue_per_TVL*100).toFixed(3)),backgroundColor:top.map(d=>CLUSTER_COLORS[d.Efficiency_Cluster]+'cc'),borderColor:top.map(d=>CLUSTER_COLORS[d.Efficiency_Cluster]),borderWidth:1}]},
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw+'%'}}},scales:{x:{ticks:{color:'#6b7a8d',font:{size:10},callback:v=>v+'%'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#e8edf2',font:{size:10}},grid:{display:false}}}}
-  });
+function renderRevTvl(data){
+  mk('revTvl');
+  const top=data.filter(d=>d.Revenue_per_TVL>0).sort((a,b)=>b.Revenue_per_TVL-a.Revenue_per_TVL).slice(0,15);
+  charts.revTvl=new Chart(document.getElementById('revTvlChart'),{type:'bar',data:{labels:top.map(d=>d.Protocol),datasets:[{data:top.map(d=>(d.Revenue_per_TVL*100).toFixed(3)),backgroundColor:top.map(d=>CLUSTER_COLORS[d.Efficiency_Cluster]+'cc'),borderColor:top.map(d=>CLUSTER_COLORS[d.Efficiency_Cluster]),borderWidth:1}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw+'%'}}},scales:{x:{ticks:{color:'#6b7a8d',font:{size:10},callback:v=>v+'%'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#e8edf2',font:{size:10}},grid:{display:false}}}}});
 }
 
-function renderBurnTab(data) {
-  const burned = data.filter(d=>d.Burn_Phase);
-  document.getElementById('burnCount').textContent = burned.length;
-  let html = '';
-  burned.forEach(d => {
-    const deficit = d.Annual_Revenue - d.Annual_Expenses;
-    html += `<div class="burn-card">
-      <div class="burn-card-name">${d.Protocol} <span style="font-size:10px;color:var(--muted);font-family:var(--mono)">${d.Category}</span></div>
-      <div class="burn-card-row"><span class="burn-card-key">Revenue</span><span style="color:var(--text)">${fmt(d.Annual_Revenue,'$')}</span></div>
-      <div class="burn-card-row"><span class="burn-card-key">Expenses</span><span class="burn-card-val">${fmt(d.Annual_Expenses,'$')}</span></div>
-      <div class="burn-card-row"><span class="burn-card-key">Monthly Burn</span><span class="burn-card-val">${fmt(Math.abs(d.Annual_Expenses-d.Annual_Revenue)/12,'$')}/mo</span></div>
-      <div class="burn-card-row"><span class="burn-card-key">Op. Margin</span><span class="burn-card-val">${pct(d.Operating_Margin)}</span></div>
-      <div class="burn-card-row"><span class="burn-card-key">Team</span><span style="color:var(--muted)">${d.Headcount} people</span></div>
+function renderBurn(data){
+  const burned=data.filter(d=>d.Burn_Phase);
+  document.getElementById('burnCount').textContent=burned.length;
+  let html='';
+  burned.forEach(d=>{
+    html+=`<div class="burn-card"><div class="burn-card-name">${d.Protocol} <span style="font-size:10px;color:var(--muted);font-family:var(--mono)">${d.Category}</span></div>
+    <div class="burn-card-row"><span class="burn-card-key">Revenue</span><span style="color:var(--text)">${fmt(d.Annual_Revenue,'$')}</span></div>
+    <div class="burn-card-row"><span class="burn-card-key">Expenses</span><span class="burn-card-val">${fmt(d.Annual_Expenses,'$')}</span></div>
+    <div class="burn-card-row"><span class="burn-card-key">Monthly Burn</span><span class="burn-card-val">${fmt(Math.abs(d.Annual_Expenses-d.Annual_Revenue)/12,'$')}/mo</span></div>
+    <div class="burn-card-row"><span class="burn-card-key">Team</span><span style="color:var(--muted)">${d.Headcount} people</span></div>
     </div>`;
   });
-  document.getElementById('burnGrid').innerHTML = html || '<div style="color:var(--muted);font-family:var(--mono);font-size:12px">No burn protocols in current filter</div>';
-
-  if(charts.burn) charts.burn.destroy();
-  if(burned.length>0) {
-    charts.burn = new Chart(document.getElementById('burnChart'), {
-      type:'bar',
-      data:{
-        labels:burned.map(d=>d.Protocol),
-        datasets:[
-          {label:'Revenue',data:burned.map(d=>d.Annual_Revenue),backgroundColor:'#00e5a044',borderColor:'#00e5a0',borderWidth:1},
-          {label:'Expenses',data:burned.map(d=>d.Annual_Expenses),backgroundColor:'#ff4560aa',borderColor:'#ff4560',borderWidth:1}
-        ]
-      },
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7a8d',font:{size:11},usePointStyle:true}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.raw,'$')}}},scales:{x:{ticks:{color:'#e8edf2',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#6b7a8d',font:{size:10},callback:v=>fmt(v,'$')},grid:{color:'rgba(255,255,255,0.04)'}}}}
-    });
+  document.getElementById('burnGrid').innerHTML=html||'<div style="color:var(--muted);font-family:var(--mono);font-size:12px">No burn protocols in filter</div>';
+  mk('burn');
+  if(burned.length){
+    charts.burn=new Chart(document.getElementById('burnChart'),{type:'bar',data:{labels:burned.map(d=>d.Protocol),datasets:[{label:'Revenue',data:burned.map(d=>d.Annual_Revenue),backgroundColor:'#00e5a044',borderColor:'#00e5a0',borderWidth:1},{label:'Expenses',data:burned.map(d=>d.Annual_Expenses),backgroundColor:'#ff456088',borderColor:'#ff4560',borderWidth:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7a8d',font:{size:11},usePointStyle:true}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.raw,'$')}}},scales:{x:{ticks:{color:'#e8edf2',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#6b7a8d',font:{size:10},callback:v=>fmt(v,'$')},grid:{color:'rgba(255,255,255,0.04)'}}}}});
   }
 }
 
-function renderValuationTab(data) {
-  const top20 = [...data].filter(d=>d.Implied_FDV_High>0).sort((a,b)=>b.Implied_FDV_High-a.Implied_FDV_High).slice(0,20);
-  if(charts.fdv) charts.fdv.destroy();
-  charts.fdv = new Chart(document.getElementById('fdvChart'), {
-    type:'bar',
-    data:{
-      labels:top20.map(d=>d.Protocol),
-      datasets:[
-        {label:'FDV Low (5x)',data:top20.map(d=>d.Implied_FDV_Low),backgroundColor:'#4d8bff55',borderColor:'#4d8bff',borderWidth:1},
-        {label:'FDV High (12x)',data:top20.map(d=>d.Implied_FDV_High),backgroundColor:'#00e5a055',borderColor:'#00e5a0',borderWidth:1}
-      ]
-    },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7a8d',font:{size:11},usePointStyle:true}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.raw,'$')}}},scales:{x:{ticks:{color:'#e8edf2',font:{size:10},maxRotation:45},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#6b7a8d',font:{size:10},callback:v=>fmt(v,'$')},grid:{color:'rgba(255,255,255,0.04)'}}}}
-  });
-
-  if(charts.scoreVal) charts.scoreVal.destroy();
-  const valid = data.filter(d=>d.Implied_FDV_High>0 && d.Health_Score_v2>1);
-  charts.scoreVal = new Chart(document.getElementById('scoreValChart'), {
-    type:'scatter',
-    data:{datasets:[{data:valid.map(d=>({x:d.Health_Score_v2,y:d.Implied_FDV_High,label:d.Protocol})),backgroundColor:valid.map(d=>CLUSTER_COLORS[d.Efficiency_Cluster]+'aa'),borderColor:valid.map(d=>CLUSTER_COLORS[d.Efficiency_Cluster]),borderWidth:1,pointRadius:5}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw.label} — Score: ${ctx.raw.x.toFixed(1)} | FDV: ${fmt(ctx.raw.y,'$')}`}}},scales:{x:{title:{display:true,text:'Health Score',color:'#6b7a8d',font:{size:11}},ticks:{color:'#6b7a8d',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},y:{type:'logarithmic',ticks:{color:'#6b7a8d',font:{size:10},callback:v=>fmt(v,'$')},grid:{color:'rgba(255,255,255,0.04)'}}}}
-  });
-
-  const top10 = [...data].filter(d=>d.Implied_FDV_High>0).sort((a,b)=>b.Implied_FDV_High-a.Implied_FDV_High).slice(0,10);
-  const maxFDV = top10[0]?.Implied_FDV_High||1;
-  let lb = '';
-  top10.forEach((d,i) => {
-    const w = (d.Implied_FDV_High/maxFDV*100).toFixed(0);
-    const cc = CLUSTER_COLORS[d.Efficiency_Cluster];
-    lb += `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px">
+function renderValuation(data){
+  const top20=[...data].filter(d=>d.Implied_FDV_High>0).sort((a,b)=>b.Implied_FDV_High-a.Implied_FDV_High).slice(0,20);
+  mk('fdv');
+  charts.fdv=new Chart(document.getElementById('fdvChart'),{type:'bar',data:{labels:top20.map(d=>d.Protocol),datasets:[{label:'FDV Low (5x)',data:top20.map(d=>d.Implied_FDV_Low),backgroundColor:'#4d8bff55',borderColor:'#4d8bff',borderWidth:1},{label:'FDV High (12x)',data:top20.map(d=>d.Implied_FDV_High),backgroundColor:'#00e5a055',borderColor:'#00e5a0',borderWidth:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7a8d',font:{size:11},usePointStyle:true}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.raw,'$')}}},scales:{x:{ticks:{color:'#e8edf2',font:{size:10},maxRotation:45},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#6b7a8d',font:{size:10},callback:v=>fmt(v,'$')},grid:{color:'rgba(255,255,255,0.04)'}}}}});
+  mk('scoreVal');
+  const valid=data.filter(d=>d.Implied_FDV_High>0&&d.Health_Score_v2>1);
+  charts.scoreVal=new Chart(document.getElementById('scoreValChart'),{type:'scatter',data:{datasets:[{data:valid.map(d=>({x:d.Health_Score_v2,y:d.Implied_FDV_High,label:d.Protocol})),backgroundColor:valid.map(d=>CLUSTER_COLORS[d.Efficiency_Cluster]+'aa'),borderColor:valid.map(d=>CLUSTER_COLORS[d.Efficiency_Cluster]),borderWidth:1,pointRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw.label} — Score:${ctx.raw.x.toFixed(1)} | FDV:${fmt(ctx.raw.y,'$')}`}}},scales:{x:{title:{display:true,text:'Health Score',color:'#6b7a8d',font:{size:11}},ticks:{color:'#6b7a8d',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},y:{type:'logarithmic',ticks:{color:'#6b7a8d',font:{size:10},callback:v=>fmt(v,'$')},grid:{color:'rgba(255,255,255,0.04)'}}}}});
+  const top10=[...data].filter(d=>d.Implied_FDV_High>0).sort((a,b)=>b.Implied_FDV_High-a.Implied_FDV_High).slice(0,10);
+  const maxFDV=top10[0]?.Implied_FDV_High||1;
+  let lb='';
+  top10.forEach((d,i)=>{
+    const w=(d.Implied_FDV_High/maxFDV*100).toFixed(0);
+    const cc=CLUSTER_COLORS[d.Efficiency_Cluster];
+    lb+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px">
       <span style="font-family:var(--mono);color:var(--muted);min-width:18px">${i+1}</span>
-      <span style="font-weight:700;min-width:90px;font-family:var(--sans)">${d.Protocol}</span>
+      <span style="font-weight:700;min-width:100px;font-family:var(--sans)">${d.Efficiency_Cluster===4?'⚡ ':''}${d.Protocol}</span>
       <div style="flex:1;height:4px;background:var(--faint);border-radius:2px"><div style="width:${w}%;height:100%;background:${cc};border-radius:2px"></div></div>
       <span style="font-family:var(--mono);color:${cc};min-width:70px;text-align:right">${fmt(d.Implied_FDV_High,'$')}</span>
     </div>`;
   });
-  document.getElementById('valLeaderboard').innerHTML = lb;
+  document.getElementById('valLeaderboard').innerHTML=lb;
 }
 
-function renderAll() {
-  const data = getFiltered();
-  renderSummaryCards(data);
-  renderTable(data);
-  Chart.defaults.color = '#6b7a8d';
-  Chart.defaults.font.family = "'Space Mono', monospace";
-  renderFrontierChart(data);
-  renderRevHeadChart(data);
-  renderMarginChart(data);
-  renderClusterPie(data);
-  renderRevTvlChart(data);
-  renderBurnTab(data);
-  renderValuationTab(data);
+function renderAll(){
+  const data=getFiltered();
+  Chart.defaults.color='#6b7a8d';
+  Chart.defaults.font.family="'Space Mono',monospace";
+  renderSummaryCards(data);renderTable(data);
+  renderFrontier(data);renderRevHead(data);renderMargin(data);renderPie(data);renderRevTvl(data);
+  renderBurn(data);renderValuation(data);
 }
 
-// Tab switching
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
+function exportCSV(){
+  const data=getFiltered();
+  const cols=['Protocol','Category','Headcount','Annual_Revenue','Annual_Expenses','TVL','Rev_Per_Employee','Operating_Margin','Revenue_per_TVL','Health_Score_v2','Cluster_Name','Burn_Phase','Implied_FDV_Low','Implied_FDV_High'];
+  const rows=[cols.join(','),...data.map(d=>cols.map(c=>{const v=d[c];return typeof v==='string'?`"${v}"`:v==null?'':v}).join(','))];
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([rows.join('\n')],{type:'text/csv'}));a.download='defi_efficiency_v2.csv';a.click();
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
     document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    btn.classList.add('active');document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
   });
 });
 
-// Cluster filters
-document.querySelectorAll('#clusterFilters .chip').forEach(chip => {
-  chip.addEventListener('click', () => {
+document.querySelectorAll('#clusterFilters .chip').forEach(chip=>{
+  chip.addEventListener('click',()=>{
     document.querySelectorAll('#clusterFilters .chip').forEach(c=>c.classList.remove('active'));
-    chip.classList.add('active');
-    currentCluster = chip.dataset.cluster;
-    renderAll();
+    chip.classList.add('active');currentCluster=chip.dataset.cluster;renderAll();
   });
 });
 
-// Search
-document.getElementById('searchInput').addEventListener('input', e => {
-  currentSearch = e.target.value;
-  const data = getFiltered();
-  renderSummaryCards(data);
-  renderTable(data);
+document.getElementById('searchInput').addEventListener('input',e=>{
+  currentSearch=e.target.value;
+  const data=getFiltered();renderSummaryCards(data);renderTable(data);
 });
 
-function exportCSV() {
-  const data = getFiltered();
-  const cols = ['Protocol','Category','Headcount','Annual_Revenue','Annual_Expenses','TVL','Rev_Per_Employee','Operating_Margin','Revenue_per_TVL','Health_Score_v2','Cluster_Name','Burn_Phase','Implied_FDV_Low','Implied_FDV_High'];
-  const rows = [cols.join(','), ...data.map(d=>cols.map(c=>{const v=d[c];return typeof v==='string'?`"${v}"`:v}).join(','))];
-  const blob = new Blob([rows.join('\n')],{type:'text/csv'});
-  const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='defi_efficiency_export.csv'; a.click();
-}
-
-setupTableSort();
-renderAll();
-
-// Mark initial sort col
+setupSort();renderAll();
 document.querySelector(`th[data-col="${sortCol}"]`)?.classList.add('sort-desc');
 </script>
 </body>
